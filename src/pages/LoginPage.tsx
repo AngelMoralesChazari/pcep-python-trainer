@@ -20,7 +20,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onSuccess, onBack }) => {
   const [statusMessage, setStatusMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Manejador de inicio de sesión con Google
+  // sesión con Google
   const handleGoogleSignIn = async () => {
     setStatusMessage(null);
     setLoading(true);
@@ -103,12 +103,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onSuccess, onBack }) => {
             <ArrowLeft className="w-4 h-4" />
             <span>Volver</span>
           </button>
-
-          {/* Indicador de estado de la nube */}
-          <div className="flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-            <Cloud className={`w-3.5 h-3.5 ${isCloudConnected ? 'text-emerald-500' : 'text-slate-400'}`} />
-            <span>{isCloudConnected ? 'Nube Firebase Conectada' : 'Modo Local / Demo'}</span>
-          </div>
         </div>
 
         <div className="text-center space-y-1">
