@@ -15,13 +15,24 @@ import { TeacherDashboardPage } from './pages/TeacherDashboardPage';
 import { PCEPObjectiveCode } from './types/pcep';
 
 const AppContent: React.FC = () => {
-  const [currentTab, setCurrentTab] = useState<string>('dashboard');
+  const [currentTab, setCurrentTab] = useState<string>(() => {
+    // Si no hay usuario activo, la vista inicial es siempre 'home'
+    const savedUser = localStorage.getItem('pcep_active_user');
+    if (!savedUser) return 'home';
+    const savedTab = sessionStorage.getItem('pcep_active_tab');
+    return savedTab || 'dashboard';
+  });
+
   const [isDark, setIsDark] = useState<boolean>(() => {
     return localStorage.getItem('pcep_theme') === 'dark';
   });
 
   // Estado para pasar ejercicio o filtro a la página de práctica
   const [selectedExerciseId, setSelectedExerciseId] = useState<string | null>(null);
+
+  useEffect(() => {
+    sessionStorage.setItem('pcep_active_tab', currentTab);
+  }, [currentTab]);
 
   useEffect(() => {
     if (isDark) {
@@ -102,11 +113,11 @@ const AppContent: React.FC = () => {
         )}
 
         {currentTab === 'progress' && (
-          <ProgressPage />
+          <ProgressPage onNavigate={handleNavigate} />
         )}
 
         {currentTab === 'history' && (
-          <HistoryPage />
+          <HistoryPage onNavigate={handleNavigate} />
         )}
 
         {currentTab === 'teacher' && (
