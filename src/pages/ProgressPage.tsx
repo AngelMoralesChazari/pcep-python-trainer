@@ -1,11 +1,17 @@
 import React from 'react';
 import { Target, Award, CheckCircle2, TrendingUp, AlertTriangle } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import { useProgress } from '../context/ProgressContext';
 import { ProgressBar } from '../components/common/ProgressBar';
 import { PCEP_SYLLABUS } from '../data/syllabusData';
 import { PCEPObjectiveCode } from '../types/pcep';
 
-export const ProgressPage: React.FC = () => {
+interface ProgressPageProps {
+  onNavigate?: (tab: string) => void;
+}
+
+export const ProgressPage: React.FC<ProgressPageProps> = ({ onNavigate }) => {
+  const { user } = useAuth();
   const { progress, exercises } = useProgress();
 
   // Matriz de Cobertura del Banco de Ejercicios (Sección 45)
@@ -32,6 +38,23 @@ export const ProgressPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Banner de Invitado */}
+      {!user && (
+        <div className="bg-petrol-50 dark:bg-petrol-950/40 border border-petrol-200 dark:border-petrol-900 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+          <div className="text-petrol-800 dark:text-petrol-200">
+            <span className="font-bold">Modo Invitado:</span> Las métricas reflejan tu sesión actual. Inicia sesión para sincronizar y conservar tu dominio oficial en la nube.
+          </div>
+          {onNavigate && (
+            <button
+              onClick={() => onNavigate('login')}
+              className="px-3 py-1.5 rounded-lg bg-petrol-600 hover:bg-petrol-700 text-white font-medium transition shadow-sm shrink-0"
+            >
+              Iniciar Sesión
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Grid de Dominio por Sección */}
       <div className="space-y-6">
         {PCEP_SYLLABUS.map((section) => (
@@ -51,7 +74,7 @@ export const ProgressPage: React.FC = () => {
             {/* Lista de Objetivos de la Sección */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {section.objectives.map((obj) => {
-                const mastery = progress.objectiveMastery[obj.code] ?? 50;
+                const mastery = progress.objectiveMastery[obj.code] ?? 0;
                 const availableExercises = coverageMap[obj.code] || 0;
                 const isWeak = progress.weakObjectives.includes(obj.code);
 
