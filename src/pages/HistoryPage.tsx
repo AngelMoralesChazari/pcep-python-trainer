@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
 import { History, CheckCircle2, XCircle, Clock, Calendar, Code, ChevronRight } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import { useProgress } from '../context/ProgressContext';
 
-export const HistoryPage: React.FC = () => {
+interface HistoryPageProps {
+  onNavigate?: (tab: string) => void;
+}
+
+export const HistoryPage: React.FC<HistoryPageProps> = ({ onNavigate }) => {
+  const { user } = useAuth();
   const { submissions, exercises } = useProgress();
   const [selectedSubmissionId, setSelectedSubmissionId] = useState<string | null>(null);
 
@@ -31,8 +37,20 @@ export const HistoryPage: React.FC = () => {
         {/* Lista de Envíos */}
         <div className="lg:col-span-7 space-y-3">
           {submissions.length === 0 ? (
-            <div className="text-center py-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6">
-              <p className="text-sm text-slate-500">Aún no has registrado intentos de ejercicios.</p>
+            <div className="text-center py-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 space-y-3">
+              <p className="text-sm text-slate-500">
+                {user
+                  ? 'Aún no has registrado intentos de ejercicios.'
+                  : 'Modo invitado: Aún no has registrado soluciones en esta sesión.'}
+              </p>
+              {!user && onNavigate && (
+                <button
+                  onClick={() => onNavigate('login')}
+                  className="px-4 py-2 bg-petrol-600 hover:bg-petrol-700 text-white rounded-lg text-xs font-semibold transition"
+                >
+                  Iniciar Sesión para Guardar Historial
+                </button>
+              )}
             </div>
           ) : (
             submissions.map((sub) => {
