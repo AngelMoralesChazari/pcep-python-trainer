@@ -5,52 +5,63 @@ import {
   sendPasswordResetEmail,
   signOut,
   onAuthStateChanged,
+  GoogleAuthProvider,
+  signInWithPopup,
   User as FirebaseUser
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db, isFirebaseConfigured } from '../lib/firebase';
 import { UserProfile } from '../types';
 
+export const ADMIN_EMAIL = '24722899@uagro.mx';
+
+export const resolveRole = (email?: string | null): 'teacher' | 'student' => {
+  if (!email) return 'student';
+  return email.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase() ? 'teacher' : 'student';
+};
+
 interface AuthContextType {
   user: UserProfile | null;
   role: 'student' | 'teacher' | 'admin';
+  isAdmin: boolean;
   isCloudConnected: boolean;
-  login: (email: string, password?: string, role?: 'student' | 'teacher') => Promise<{ success: boolean; error?: string }>;
-  register: (email: string, password: string, displayName: string, role?: 'student' | 'teacher') => Promise<{ success: boolean; error?: string }>;
+  login: (email: string, password?: string) => Promise<{ success: boolean; error?: string }>;
+  loginWithGoogle: () => Promise<{ success: boolean; error?: string }>;
+  register: (email: string, password: string, displayName: string) => Promise<{ success: boolean; error?: string }>;
   resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   switchRole: (newRole: 'student' | 'teacher') => void;
   updateUserStats: (newStats: Partial<UserProfile['stats']>) => void;
 }
 
-const DEFAULT_STUDENT: UserProfile = {
-  uid: 'usr-student-angel',
-  email: 'angel@pcep-trainer.org',
-  displayName: 'Ángel',
-  role: 'student',
+const DEFAULT_ADMIN: UserProfile = {
+  uid: 'usr-admin-uagro',
+  email: '24722899@uagro.mx',
+  displayName: 'Ángel Morales (Admin)',
+  role: 'teacher',
   createdAt: '2026-09-01T10:00:00Z',
   stats: {
     totalSolved: 184,
     totalAttempts: 236,
     accuracyPercentage: 78,
-    studyTimeSeconds: 45780, // ~12h 43m
+    studyTimeSeconds: 45780,
     currentStreakDays: 7,
     lastActiveDate: new Date().toISOString()
   }
 };
 
-const DEFAULT_TEACHER: UserProfile = {
-  uid: 'usr-teacher-garcia',
-  email: 'profesora.garcia@pcep-trainer.org',
-  displayName: 'Dra. Carmen García',
-  role: 'teacher',
-  createdAt: '2026-08-15T09:00:00Z',
+const DEFAULT_STUDENT: UserProfile = {
+  uid: 'usr-student-demo',
+  email: 'alumno@ejemplo.com',
+  displayName: 'Estudiante PCEP',
+  role: 'student',
+  createdAt: '2026-09-15T10:00:00Z',
   stats: {
-    totalSolved: 512,
-    totalAttempts: 520,
-    accuracyPercentage: 98,
-    studyTimeSeconds: 98000,
-    currentStreakDays: 30,
+    totalSolved: 42,
+    totalAttempts: 58,
+    accuracyPercentage: 72,
+    studyTimeSeconds: 14200,
+    currentStreakDays: 3,
     lastActiveDate: new Date().toISOString()
   }
 };
@@ -63,29 +74,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (saved) {
       try { return JSON.parse(saved); } catch {}
     }
-    return DEFAULT_STUDENT;
+    return DEFAULT_ADMIN;
   });
 
-  // Escuchar cambios de autenticación en Firebase Cloud si está configurado
+  // Escuchar cambios de autenticación en Firebase Cloud
   useEffect(() => {
     if (!isFirebaseConfigured || !auth) return;
 
     const unsubscribe = onAuthStateChanged(auth, async (fbUser: FirebaseUser | null) => {
       if (fbUser) {
         try {
+          const userEmail = fbUser.email || '';
+          const assignedRole = resolveRole(userEmail);
           const userDocRef = doc(db, 'users', fbUser.uid);
           const docSnap = await getDoc(userDocRef);
 
           if (docSnap.exists()) {
             const data = docSnap.data() as UserProfile;
+            // Asegurar que si el correo es 24722899@uagro.mx siempre tenga rol teacher
+            if (assignedRole === 'teacher' && data.role !== 'teacher') {
+              data.role = 'teacher';
+              await setDoc(userDocRef, { role: 'teacher' }, { merge: true });
+            }
             setUser(data);
           } else {
-            // Documento de perfil inicial
             const newProfile: UserProfile = {
               uid: fbUser.uid,
-              email: fbUser.email || '',
-              displayName: fbUser.displayName || fbUser.email?.split('@')[0] || 'Usuario PCEP',
-              role: 'student',
+              email: userEmail,
+              displayName: fbUser.displayName || userEmail.split('@')[0] || 'Usuario PCEP',
+              role: assignedRole,
               createdAt: new Date().toISOString(),
               stats: {
                 totalSolved: 0,
@@ -116,29 +133,90 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [user]);
 
-  const login = async (email: string, password?: string, role: 'student' | 'teacher' = 'student') => {
-    // Si Firebase Cloud está activo y se dio contraseña, usar Firebase Auth real
+  // Inicio de sesión con Google (Cuenta institucional o personal)
+  const loginWithGoogle = async () => {
+    if (isFirebaseConfigured && auth) {
+      try {
+        const provider = new GoogleAuthProvider();
+        const cred = await signInWithPopup(auth, provider);
+        const userEmail = cred.user.email || '';
+        const assignedRole = resolveRole(userEmail);
+        const userDocRef = doc(db, 'users', cred.user.uid);
+        const snap = await getDoc(userDocRef);
+
+        let profile: UserProfile;
+        if (snap.exists()) {
+          profile = snap.data() as UserProfile;
+          if (assignedRole === 'teacher' && profile.role !== 'teacher') {
+            profile.role = 'teacher';
+            await setDoc(userDocRef, { role: 'teacher' }, { merge: true });
+          }
+        } else {
+          profile = {
+            uid: cred.user.uid,
+            email: userEmail,
+            displayName: cred.user.displayName || userEmail.split('@')[0],
+            role: assignedRole,
+            createdAt: new Date().toISOString(),
+            stats: {
+              totalSolved: 0,
+              totalAttempts: 0,
+              accuracyPercentage: 0,
+              studyTimeSeconds: 0,
+              currentStreakDays: 1,
+              lastActiveDate: new Date().toISOString()
+            }
+          };
+          await setDoc(userDocRef, profile);
+        }
+        setUser(profile);
+        return { success: true };
+      } catch (err: any) {
+        return { success: false, error: err.message || 'Error al iniciar sesión con Google' };
+      }
+    }
+
+    // Modo demo / offline: simular inicio con Google como admin 24722899@uagro.mx
+    setUser(DEFAULT_ADMIN);
+    return { success: true };
+  };
+
+  // Inicio de sesión manual con correo y contraseña
+  const login = async (email: string, password?: string) => {
+    const assignedRole = resolveRole(email);
+
     if (isFirebaseConfigured && password && auth) {
       try {
         const cred = await signInWithEmailAndPassword(auth, email, password);
         const docRef = doc(db, 'users', cred.user.uid);
         const snap = await getDoc(docRef);
+
         if (snap.exists()) {
-          setUser(snap.data() as UserProfile);
+          const profile = snap.data() as UserProfile;
+          if (assignedRole === 'teacher' && profile.role !== 'teacher') {
+            profile.role = 'teacher';
+            await setDoc(docRef, { role: 'teacher' }, { merge: true });
+          }
+          setUser(profile);
         }
         return { success: true };
       } catch (err: any) {
-        return { success: false, error: err.message || 'Error de inicio de sesión en Firebase' };
+        return { success: false, error: err.message || 'Error de inicio de sesión' };
       }
     }
 
     // Modo local / demo
-    const newUser = role === 'teacher' ? { ...DEFAULT_TEACHER, email } : { ...DEFAULT_STUDENT, email };
-    setUser(newUser);
+    const mockUser: UserProfile = assignedRole === 'teacher'
+      ? { ...DEFAULT_ADMIN, email }
+      : { ...DEFAULT_STUDENT, email, displayName: email.split('@')[0] };
+    setUser(mockUser);
     return { success: true };
   };
 
-  const register = async (email: string, password: string, displayName: string, role: 'student' | 'teacher' = 'student') => {
+  // Registro de nueva cuenta
+  const register = async (email: string, password: string, displayName: string) => {
+    const assignedRole = resolveRole(email);
+
     if (isFirebaseConfigured && auth) {
       try {
         const cred = await createUserWithEmailAndPassword(auth, email, password);
@@ -146,7 +224,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           uid: cred.user.uid,
           email,
           displayName,
-          role,
+          role: assignedRole,
           createdAt: new Date().toISOString(),
           stats: {
             totalSolved: 0,
@@ -170,7 +248,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       uid: `local-${Date.now()}`,
       email,
       displayName,
-      role,
+      role: assignedRole,
       createdAt: new Date().toISOString(),
       stats: {
         totalSolved: 0,
@@ -203,12 +281,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await signOut(auth);
       } catch {}
     }
-    setUser({ ...DEFAULT_STUDENT, email: 'invitado@pcep.org', displayName: 'Invitado' });
+    setUser(null);
+    localStorage.removeItem('pcep_active_user');
   };
 
   const switchRole = (newRole: 'student' | 'teacher') => {
     if (newRole === 'teacher') {
-      setUser(DEFAULT_TEACHER);
+      setUser(DEFAULT_ADMIN);
     } else {
       setUser(DEFAULT_STUDENT);
     }
@@ -235,8 +314,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <AuthContext.Provider value={{
       user,
       role: user?.role || 'student',
+      isAdmin: user?.role === 'teacher' || user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase(),
       isCloudConnected: isFirebaseConfigured,
       login,
+      loginWithGoogle,
       register,
       resetPassword,
       logout,
