@@ -17,35 +17,35 @@ interface ProgressContextType {
   getRecommendedExercises: (limit?: number) => Exercise[];
 }
 
-const DEFAULT_PROGRESS: StudentProgress = {
-  userId: 'usr-student-angel',
+const EMPTY_PROGRESS: StudentProgress = {
+  userId: 'guest',
   objectiveMastery: {
-    '1.1': 90,
-    '1.2': 88,
-    '1.3': 85,
-    '1.4': 81,
-    '1.5': 79,
-    '2.1': 76,
-    '2.2': 64,
-    '3.1': 51,
-    '3.2': 88,
-    '3.3': 43,
-    '3.4': 72,
-    '4.1': 72,
-    '4.2': 60,
-    '4.3': 55,
-    '4.4': 38
+    '1.1': 0,
+    '1.2': 0,
+    '1.3': 0,
+    '1.4': 0,
+    '1.5': 0,
+    '2.1': 0,
+    '2.2': 0,
+    '3.1': 0,
+    '3.2': 0,
+    '3.3': 0,
+    '3.4': 0,
+    '4.1': 0,
+    '4.2': 0,
+    '4.3': 0,
+    '4.4': 0
   },
   sectionScores: {
-    1: 85,
-    2: 70,
-    3: 63,
-    4: 56
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0
   },
-  weakObjectives: ['4.4', '3.3', '3.1', '4.3'],
-  solvedExerciseIds: ['pcep-1-1-theory-1', 'pcep-1-2-analysis-1', 'pcep-1-3-pred-1', 'pcep-2-1-analysis-1', 'pcep-3-2-pred-1'],
-  failedExerciseIds: ['pcep-3-1-analysis-1', 'pcep-4-4-analysis-1'],
-  favoriteExerciseIds: ['pcep-1-4-pred-1', 'pcep-2-2-prog-1']
+  weakObjectives: [],
+  solvedExerciseIds: [],
+  failedExerciseIds: [],
+  favoriteExerciseIds: []
 };
 
 const ProgressContext = createContext<ProgressContextType | undefined>(undefined);
@@ -66,7 +66,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (saved) {
       try { return JSON.parse(saved); } catch {}
     }
-    return DEFAULT_PROGRESS;
+    return EMPTY_PROGRESS;
   });
 
   const [submissions, setSubmissions] = useState<SubmissionAttempt[]>(() => {
@@ -74,24 +74,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (saved) {
       try { return JSON.parse(saved); } catch {}
     }
-    return [
-      {
-        id: 'sub-1',
-        exerciseId: 'pcep-1-1-theory-1',
-        userId: 'usr-student-angel',
-        timestamp: new Date(Date.now() - 86400000 * 2).toISOString(),
-        verdict: 'accepted',
-        isCorrect: true
-      },
-      {
-        id: 'sub-2',
-        exerciseId: 'pcep-3-1-analysis-1',
-        userId: 'usr-student-angel',
-        timestamp: new Date(Date.now() - 86400000).toISOString(),
-        verdict: 'wrong_answer',
-        isCorrect: false
-      }
-    ];
+    return [];
   });
 
   const [examAttempts, setExamAttempts] = useState<ExamAttempt[]>(() => {
@@ -99,25 +82,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (saved) {
       try { return JSON.parse(saved); } catch {}
     }
-    return [
-      {
-        id: 'exam-init-1',
-        userId: 'usr-student-angel',
-        timestamp: new Date(Date.now() - 86400000 * 3).toISOString(),
-        durationSeconds: 1620, // 27 minutos
-        totalQuestions: 30,
-        scorePercentage: 68,
-        passed: false,
-        breakdown: {
-          section1: 82,
-          section2: 71,
-          section3: 64,
-          section4: 58
-        },
-        answers: {},
-        weakObjectives: ['4.4', '3.3', '3.1']
-      }
-    ];
+    return [];
   });
 
   // Persistir en LocalStorage
