@@ -26,14 +26,21 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, onSele
     return `${hours}h ${minutes}m`;
   };
 
-  // Calcular promedio de preparación ponderado por los pesos oficiales PCEP
+  // Calcular promedio de preparación ponderado por los pesos oficiales PCEP  // Calcular promedio de preparación ponderado por los pesos oficiales PCEP
   // Sec 1: 18%, Sec 2: 29%, Sec 3: 25%, Sec 4: 28%
-  const weightedOverallProgress = Math.round(
-    (progress.sectionScores[1] * 0.18) +
-    (progress.sectionScores[2] * 0.29) +
-    (progress.sectionScores[3] * 0.25) +
-    (progress.sectionScores[4] * 0.28)
-  );
+  const weightedOverallProgress = user
+    ? Math.round(
+        ((progress.sectionScores[1] || 0) * 0.18) +
+        ((progress.sectionScores[2] || 0) * 0.29) +
+        ((progress.sectionScores[3] || 0) * 0.25) +
+        ((progress.sectionScores[4] || 0) * 0.28)
+      )
+    : 0;
+
+  const section1Score = user ? (progress.sectionScores[1] || 0) : 0;
+  const section2Score = user ? (progress.sectionScores[2] || 0) : 0;
+  const section3Score = user ? (progress.sectionScores[3] || 0) : 0;
+  const section4Score = user ? (progress.sectionScores[4] || 0) : 0;
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -42,37 +49,61 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, onSele
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <span className="text-petrol-300 font-mono text-xs font-semibold uppercase tracking-wider">
-              Certificación Python PCEP-30-02
+              {user ? 'Certificación Python PCEP-30-02' : 'Certificación Python PCEP-30-02 • Modo Invitado'}
             </span>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-              Hola, {user?.displayName || 'Ángel'}
+              {user ? `Hola, ${user.displayName}` : 'Bienvenido a PCEP Trainer'}
             </h1>
             <p className="text-slate-300 text-sm max-w-xl">
-              Estás en camino hacia la certificación oficial. Mantén la racha resolviendo ejercicios diarios y reforzando tus temas clave.
+              {user
+                ? 'Estás en camino hacia la certificación oficial. Mantén la racha resolviendo ejercicios diarios y reforzando tus temas clave.'
+                : 'Inicia sesión con tu cuenta para registrar tu progreso oficial, guardar tus simulacros y sincronizar tus estadísticas en la nube.'}
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3">
-            <button
-              onClick={() => onNavigate('practice')}
-              className="px-5 py-2.5 rounded-xl bg-petrol-500 hover:bg-petrol-600 text-white font-medium text-sm transition flex items-center justify-center gap-2 shadow-sm"
-            >
-              <span>Continuar Practicando</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => onNavigate('exams')}
-              className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 font-medium text-sm transition flex items-center justify-center gap-2"
-            >
-              <span>Simulacro de Examen</span>
-            </button>
+            {user ? (
+              <>
+                <button
+                  onClick={() => onNavigate('practice')}
+                  className="px-5 py-2.5 rounded-xl bg-petrol-500 hover:bg-petrol-600 text-white font-medium text-sm transition flex items-center justify-center gap-2 shadow-sm"
+                >
+                  <span>Continuar Practicando</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => onNavigate('exams')}
+                  className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 font-medium text-sm transition flex items-center justify-center gap-2"
+                >
+                  <span>Simulacro de Examen</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => onNavigate('login')}
+                  className="px-5 py-2.5 rounded-xl bg-petrol-500 hover:bg-petrol-600 text-white font-medium text-sm transition flex items-center justify-center gap-2 shadow-sm"
+                >
+                  <span>Iniciar Sesión en la Nube</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => onNavigate('practice')}
+                  className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 font-medium text-sm transition flex items-center justify-center gap-2"
+                >
+                  <span>Practicar como Invitado</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
 
         {/* Barra de progreso global del examen */}
         <div className="mt-8 pt-6 border-t border-slate-800/80">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-xs font-medium text-slate-300">Tu Progreso Global PCEP</span>
+            <span className="text-xs font-medium text-slate-300">
+              {user ? 'Tu Progreso Global PCEP' : 'Progreso Global PCEP (Inicia sesión para guardar)'}
+            </span>
             <span className="font-mono text-sm font-bold text-petrol-300">{weightedOverallProgress}%</span>
           </div>
           <div className="w-full bg-slate-800 rounded-full h-3 overflow-hidden">
@@ -94,8 +125,9 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, onSele
           <div>
             <div className="text-xs text-slate-500 font-medium">Racha Actual</div>
             <div className="text-2xl font-bold text-slate-900 dark:text-slate-100 font-mono">
-              {user?.stats.currentStreakDays ?? 7} días
+              {user ? `${user.stats.currentStreakDays} días` : '0 días'}
             </div>
+            {!user && <div className="text-[10px] text-slate-400">Inicia sesión</div>}
           </div>
         </div>
 
@@ -107,8 +139,9 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, onSele
           <div>
             <div className="text-xs text-slate-500 font-medium">Ejercicios Resueltos</div>
             <div className="text-2xl font-bold text-slate-900 dark:text-slate-100 font-mono">
-              {user?.stats.totalSolved ?? 184}
+              {user ? user.stats.totalSolved : 0}
             </div>
+            {!user && <div className="text-[10px] text-slate-400">Modo invitado</div>}
           </div>
         </div>
 
@@ -120,8 +153,9 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, onSele
           <div>
             <div className="text-xs text-slate-500 font-medium">Precisión Media</div>
             <div className="text-2xl font-bold text-slate-900 dark:text-slate-100 font-mono">
-              {user?.stats.accuracyPercentage ?? 78}%
+              {user ? `${user.stats.accuracyPercentage}%` : '--%'}
             </div>
+            {!user && <div className="text-[10px] text-slate-400">Sin registrar</div>}
           </div>
         </div>
 
@@ -133,8 +167,9 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, onSele
           <div>
             <div className="text-xs text-slate-500 font-medium">Tiempo Practicando</div>
             <div className="text-2xl font-bold text-slate-900 dark:text-slate-100 font-mono">
-              {formatStudyTime(user?.stats.studyTimeSeconds ?? 45780)}
+              {user ? formatStudyTime(user.stats.studyTimeSeconds) : '0h 0m'}
             </div>
+            {!user && <div className="text-[10px] text-slate-400">Sin registrar</div>}
           </div>
         </div>
       </div>
@@ -145,7 +180,9 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, onSele
           <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
             Rendimiento por Sección del Examen Oficial
           </h2>
-          <span className="text-xs text-slate-500 font-medium">Criterio de aprobación PCEP: 70%</span>
+          <span className="text-xs text-slate-500 font-medium">
+            {user ? 'Criterio de aprobación PCEP: 70%' : 'Inicia sesión para registrar tu rendimiento'}
+          </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -155,13 +192,13 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, onSele
               <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
                 Sección 1 (18%)
               </span>
-              <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">85%</span>
+              <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{section1Score}%</span>
             </div>
             <div>
               <div className="text-sm font-semibold text-slate-800 dark:text-slate-200">Fundamentos de Python</div>
               <p className="text-xs text-slate-500 mt-0.5">Operadores, literales, sep/end, int/float.</p>
             </div>
-            <ProgressBar value={85} showPercent={false} color="emerald" size="sm" />
+            <ProgressBar value={section1Score} showPercent={false} color="emerald" size="sm" />
           </div>
 
           {/* Sección 2 */}
@@ -170,13 +207,13 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, onSele
               <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
                 Sección 2 (29%)
               </span>
-              <span className="text-xs font-bold text-petrol-600 dark:text-petrol-400">70%</span>
+              <span className="text-xs font-bold text-petrol-600 dark:text-petrol-400">{section2Score}%</span>
             </div>
             <div>
               <div className="text-sm font-semibold text-slate-800 dark:text-slate-200">Flujo de Control</div>
               <p className="text-xs text-slate-500 mt-0.5">Condicionales, while, for, range, break, else.</p>
             </div>
-            <ProgressBar value={70} showPercent={false} color="petrol" size="sm" />
+            <ProgressBar value={section2Score} showPercent={false} color="petrol" size="sm" />
           </div>
 
           {/* Sección 3 */}
@@ -185,13 +222,13 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, onSele
               <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
                 Sección 3 (25%)
               </span>
-              <span className="text-xs font-bold text-amber-600 dark:text-amber-400">63%</span>
+              <span className="text-xs font-bold text-amber-600 dark:text-amber-400">{section3Score}%</span>
             </div>
             <div>
               <div className="text-sm font-semibold text-slate-800 dark:text-slate-200">Colecciones de Datos</div>
               <p className="text-xs text-slate-500 mt-0.5">Listas, tuplas, diccionarios, strings y slicing.</p>
             </div>
-            <ProgressBar value={63} showPercent={false} color="amber" size="sm" />
+            <ProgressBar value={section3Score} showPercent={false} color="amber" size="sm" />
           </div>
 
           {/* Sección 4 */}
@@ -200,13 +237,13 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, onSele
               <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
                 Sección 4 (28%)
               </span>
-              <span className="text-xs font-bold text-rose-600 dark:text-rose-400">56%</span>
+              <span className="text-xs font-bold text-rose-600 dark:text-rose-400">{section4Score}%</span>
             </div>
             <div>
               <div className="text-sm font-semibold text-slate-800 dark:text-slate-200">Funciones y Excepciones</div>
               <p className="text-xs text-slate-500 mt-0.5">Scope, try-except, jerarquía y argumentos.</p>
             </div>
-            <ProgressBar value={56} showPercent={false} color="rose" size="sm" />
+            <ProgressBar value={section4Score} showPercent={false} color="rose" size="sm" />
           </div>
         </div>
       </div>
@@ -223,36 +260,63 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, onSele
             El sistema detecta automáticamente los subtemas donde cometes más fallos para optimizar tu tiempo de estudio.
           </p>
 
-          <div className="space-y-3">
-            {progress.weakObjectives.map((objCode) => {
-              const mastery = progress.objectiveMastery[objCode] ?? 45;
-              const titleMap: Record<string, string> = {
-                '4.4': 'Manejo de excepciones (try-except)',
-                '3.3': 'Diccionarios (keys, values, items)',
-                '3.1': 'List slicing & referencias de memoria',
-                '4.3': 'Jerarquía de Built-in Exceptions',
-                '4.2': 'Variables locales, globales y scope'
-              };
-              return (
-                <div key={objCode} className="p-3 rounded-lg border border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/40 space-y-1.5">
-                  <div className="flex justify-between text-xs">
-                    <span className="font-semibold text-slate-800 dark:text-slate-200">
-                      {objCode} &bull; {titleMap[objCode] || `Objetivo ${objCode}`}
-                    </span>
-                    <span className="font-mono text-rose-600 dark:text-rose-400 font-bold">{mastery}%</span>
+          {user && progress.weakObjectives.length > 0 ? (
+            <div className="space-y-3">
+              {progress.weakObjectives.map((objCode) => {
+                const mastery = progress.objectiveMastery[objCode] ?? 45;
+                const titleMap: Record<string, string> = {
+                  '4.4': 'Manejo de excepciones (try-except)',
+                  '3.3': 'Diccionarios (keys, values, items)',
+                  '3.1': 'List slicing & referencias de memoria',
+                  '4.3': 'Jerarquía de Built-in Exceptions',
+                  '4.2': 'Variables locales, globales y scope'
+                };
+                return (
+                  <div key={objCode} className="p-3 rounded-lg border border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/40 space-y-1.5">
+                    <div className="flex justify-between text-xs">
+                      <span className="font-semibold text-slate-800 dark:text-slate-200">
+                        {objCode} &bull; {titleMap[objCode] || `Objetivo ${objCode}`}
+                      </span>
+                      <span className="font-mono text-rose-600 dark:text-rose-400 font-bold">{mastery}%</span>
+                    </div>
+                    <ProgressBar value={mastery} showPercent={false} color="rose" size="sm" />
                   </div>
-                  <ProgressBar value={mastery} showPercent={false} color="rose" size="sm" />
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="p-5 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 text-center space-y-3">
+              <p className="text-xs text-slate-500">
+                {user
+                  ? 'Aún no se detectan temas débiles. ¡Resuelve ejercicios y simulacros para generar tu diagnóstico!'
+                  : 'Inicia sesión y realiza ejercicios para que el sistema detecte automáticamente tus áreas de mejora.'}
+              </p>
+              {!user ? (
+                <button
+                  onClick={() => onNavigate('login')}
+                  className="px-4 py-2 text-xs font-semibold rounded-lg bg-petrol-600 hover:bg-petrol-700 text-white transition shadow-sm"
+                >
+                  Iniciar Sesión
+                </button>
+              ) : (
+                <button
+                  onClick={() => onNavigate('practice')}
+                  className="px-4 py-2 text-xs font-semibold rounded-lg border border-petrol-300 dark:border-petrol-700 text-petrol-600 dark:text-petrol-400 hover:bg-petrol-50 dark:hover:bg-petrol-950/50 transition"
+                >
+                  Practicar Ejercicios
+                </button>
+              )}
+            </div>
+          )}
 
-          <button
-            onClick={() => onNavigate('practice')}
-            className="w-full mt-2 py-2 text-xs font-semibold text-petrol-600 dark:text-petrol-400 border border-petrol-200 dark:border-petrol-800 rounded-lg hover:bg-petrol-50 dark:hover:bg-petrol-950/50 transition"
-          >
-            Practicar debilidades ahora
-          </button>
+          {user && progress.weakObjectives.length > 0 && (
+            <button
+              onClick={() => onNavigate('practice')}
+              className="w-full mt-2 py-2 text-xs font-semibold text-petrol-600 dark:text-petrol-400 border border-petrol-200 dark:border-petrol-800 rounded-lg hover:bg-petrol-50 dark:hover:bg-petrol-950/50 transition"
+            >
+              Practicar debilidades ahora
+            </button>
+          )}
         </div>
 
         {/* Recomendados Para Ti (2 columnas) */}
