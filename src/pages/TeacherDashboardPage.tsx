@@ -19,8 +19,8 @@ interface StudentMock {
 const MOCK_STUDENTS: StudentMock[] = [
   {
     id: 's-1',
-    name: 'Ángel',
-    email: 'angel@pcep-trainer.org',
+    name: 'Alejandro Ramos',
+    email: 'alejandro@pcep-trainer.org',
     progress: 72,
     accuracy: 78,
     solvedCount: 184,
