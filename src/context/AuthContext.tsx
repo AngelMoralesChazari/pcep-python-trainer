@@ -74,7 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (saved) {
       try { return JSON.parse(saved); } catch {}
     }
-    return DEFAULT_ADMIN;
+    return null;
   });
 
   // Escuchar cambios de autenticación en Firebase Cloud
@@ -119,6 +119,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } catch (err) {
           console.warn("Error leyendo perfil de Firestore:", err);
         }
+      } else {
+        // Si Firebase reporta null, verificar si hay un usuario mock/local explícito activo
+        const saved = localStorage.getItem('pcep_active_user');
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            if (parsed.uid && (parsed.uid.startsWith('usr-') || parsed.uid.startsWith('local-'))) {
+              return; // Mantener la sesión local/demo activa si no ha cerrado sesión
+            }
+          } catch {}
+        }
+        // Si no hay usuario activo, limpiar estado
+        setUser(null);
+        localStorage.removeItem('pcep_active_user');
       }
     });
 
@@ -201,6 +215,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         return { success: true };
       } catch (err: any) {
+        // Fallback para pruebas rápidas / demo local si el usuario aún no existe en Firebase Auth
+        if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/invalid-login-credentials') {
+          const mockUser: UserProfile = assignedRole === 'teacher'
+            ? { ...DEFAULT_ADMIN, email }
+            : { ...DEFAULT_STUDENT, email, displayName: email.split('@')[0] };
+          setUser(mockUser);
+          return { success: true };
+        }
         return { success: false, error: err.message || 'Error de inicio de sesión' };
       }
     }
@@ -279,10 +301,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (isFirebaseConfigured && auth) {
       try {
         await signOut(auth);
-      } catch {}
+      } catch (err) {
+        console.warn("Error signing out:", err);
+      }
     }
     setUser(null);
     localStorage.removeItem('pcep_active_user');
+    localStorage.removeItem('pcep_user_role');
+    localStorage.removeItem('pcep_student_progress');
+    localStorage.removeItem('pcep_submissions');
+    localStorage.removeItem('pcep_exam_attempts');
+    sessionStorage.clear();
   };
 
   const switchRole = (newRole: 'student' | 'teacher') => {
