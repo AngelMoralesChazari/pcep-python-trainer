@@ -178,7 +178,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onSuccess, onBack }) => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="24722899@uagro.mx o tu correo"
+                placeholder="correo electronico"
                 className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 outline-none focus:border-petrol-500"
                 required
               />
