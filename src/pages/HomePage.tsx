@@ -11,27 +11,30 @@ export const HomePage: React.FC<HomePageProps> = ({ onStart, onLogin }) => {
   const { user } = useAuth();
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-12 sm:py-20 space-y-16">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16 space-y-12 sm:space-y-14">
       {/* Hero Principal Sobrio y Profesional */}
-      <div className="text-center space-y-6 max-w-3xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-petrol-100 dark:bg-petrol-900/60 text-petrol-800 dark:text-petrol-200 text-xs font-semibold">
+      <div className="text-center space-y-5 max-w-3xl mx-auto">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-petrol-100 dark:bg-petrol-900/60 text-petrol-800 dark:text-petrol-200 text-xs font-semibold shadow-sm">
           <ShieldCheck className="w-4 h-4" />
           <span>Alineado 100% con el Temario Oficial PCEP-30-02</span>
         </div>
 
-        <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 dark:text-slate-50 tracking-tight leading-tight">
-          Entrena y Domina la Certificación <span className="text-petrol-600 dark:text-petrol-400">Python PCEP-30-02</span>
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-slate-50 tracking-tight leading-tight">
+          <span>Entrena y Domina la Certificación</span>
+          <span className="block text-petrol-600 dark:text-petrol-400 whitespace-nowrap mt-1">
+            Python PCEP-30-02
+          </span>
         </h1>
 
-        <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
+        <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal max-w-2xl mx-auto">
           Prepárate para PCEP-30-02 practicando Python desde los fundamentos hasta la resolución de problemas.
           Teoría clara, análisis de código, predicción de salida, entorno interactivo seguro y simuladores reales de examen.
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-3">
           <button
             onClick={onStart}
-            className="w-full sm:w-auto px-8 py-3.5 bg-petrol-600 hover:bg-petrol-700 text-white rounded-xl font-semibold text-sm transition shadow-sm flex items-center justify-center gap-2 group"
+            className="w-full sm:w-auto px-7 py-3 bg-petrol-600 hover:bg-petrol-700 text-white rounded-xl font-semibold text-sm transition shadow-sm flex items-center justify-center gap-2 group"
           >
             <span>Comenzar a Practicar</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -40,7 +43,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onStart, onLogin }) => {
           {user ? (
             <button
               onClick={onStart}
-              className="w-full sm:w-auto px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2 shadow-sm"
+              className="w-full sm:w-auto px-7 py-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2 shadow-sm"
             >
               <BarChart2 className="w-4 h-4 text-petrol-600" />
               <span>Ir a mi Panel ({user.displayName?.split(' ')[0]})</span>
@@ -48,7 +51,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onStart, onLogin }) => {
           ) : (
             <button
               onClick={onLogin || onStart}
-              className="w-full sm:w-auto px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2 shadow-sm"
+              className="w-full sm:w-auto px-7 py-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2 shadow-sm"
             >
               <LogIn className="w-4 h-4 text-petrol-600" />
               <span>Iniciar Sesión en la Nube</span>
@@ -57,8 +60,8 @@ export const HomePage: React.FC<HomePageProps> = ({ onStart, onLogin }) => {
         </div>
       </div>
 
-      {/* Las 4 Secciones del Temario */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Las 4 Secciones del Temario en Cuadrícula 2x2 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
         <div
           onClick={onStart}
           className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 shadow-sm hover:border-petrol-400 dark:hover:border-petrol-600 hover:shadow-md transition cursor-pointer group"
@@ -70,7 +73,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onStart, onLogin }) => {
           <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-petrol-600 dark:group-hover:text-petrol-400 transition">
             Fundamentos y Programación Python
           </h3>
-          <p className="text-xs text-slate-500 leading-relaxed">
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
             Intérprete vs compilador, léxico, literales (0o, 0x, binarios), operadores aritméticos, precedencia, asociatividad y E/S de consola con print(sep, end).
           </p>
         </div>
@@ -86,7 +89,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onStart, onLogin }) => {
           <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-petrol-600 dark:group-hover:text-petrol-400 transition">
             Flujo de Control
           </h3>
-          <p className="text-xs text-slate-500 leading-relaxed">
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
             Condicionales anidados, cortocircuito booleano (and, or), bucles while y for, función range(), sentencias break, continue y la cláusula else en bucles.
           </p>
         </div>
@@ -102,7 +105,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onStart, onLogin }) => {
           <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-petrol-600 dark:group-hover:text-petrol-400 transition">
             Colecciones de Datos
           </h3>
-          <p className="text-xs text-slate-500 leading-relaxed">
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
             Listas (indexing, slicing, clonado vs referencia), inmutabilidad de tuplas, diccionarios (keys, values, items) y manipulación de cadenas de caracteres.
           </p>
         </div>
@@ -118,7 +121,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onStart, onLogin }) => {
           <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-petrol-600 dark:group-hover:text-petrol-400 transition">
             Funciones y Excepciones
           </h3>
-          <p className="text-xs text-slate-500 leading-relaxed">
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
             Definición con def, return y None, argumentos posicionales y keyword, scopes y global, jerarquía de Built-in Exceptions y bloques try-except.
           </p>
         </div>
