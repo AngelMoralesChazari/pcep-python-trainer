@@ -66,6 +66,29 @@ const DEFAULT_STUDENT: UserProfile = {
   }
 };
 
+export const syncUserToRegistry = (profile: UserProfile) => {
+  try {
+    const raw = localStorage.getItem('pcep_registered_users');
+    const list: UserProfile[] = raw ? JSON.parse(raw) : [];
+    const idx = list.findIndex(u => u.uid === profile.uid || (u.email && profile.email && u.email.toLowerCase() === profile.email.toLowerCase()));
+    const now = new Date().toISOString();
+    const updatedUser: UserProfile = {
+      ...profile,
+      lastLoginAt: profile.lastLoginAt || now,
+      stats: {
+        ...profile.stats,
+        lastActiveDate: now
+      }
+    };
+    if (idx >= 0) {
+      list[idx] = { ...list[idx], ...updatedUser };
+    } else {
+      list.push(updatedUser);
+    }
+    localStorage.setItem('pcep_registered_users', JSON.stringify(list));
+  } catch {}
+};
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -77,7 +100,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return null;
   });
 
-  // Escuchar cambios de autenticación en Firebase Cloud
+// Escuchar cambios de autenticación en Firebase Cloud
   useEffect(() => {
     if (!isFirebaseConfigured || !auth) return;
 
@@ -88,6 +111,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const assignedRole = resolveRole(userEmail);
           const userDocRef = doc(db, 'users', fbUser.uid);
           const docSnap = await getDoc(userDocRef);
+          const now = new Date().toISOString();
 
           if (docSnap.exists()) {
             const data = docSnap.data() as UserProfile;
@@ -96,6 +120,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               data.role = 'teacher';
               await setDoc(userDocRef, { role: 'teacher' }, { merge: true });
             }
+            await setDoc(userDocRef, { lastLoginAt: now, 'stats.lastActiveDate': now }, { merge: true });
+            data.lastLoginAt = now;
+            syncUserToRegistry(data);
             setUser(data);
           } else {
             const newProfile: UserProfile = {
@@ -103,17 +130,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               email: userEmail,
               displayName: fbUser.displayName || userEmail.split('@')[0] || 'Usuario PCEP',
               role: assignedRole,
-              createdAt: new Date().toISOString(),
+              createdAt: now,
+              lastLoginAt: now,
               stats: {
                 totalSolved: 0,
                 totalAttempts: 0,
                 accuracyPercentage: 0,
                 studyTimeSeconds: 0,
                 currentStreakDays: 1,
-                lastActiveDate: new Date().toISOString()
+                lastActiveDate: now
               }
             };
             await setDoc(userDocRef, newProfile);
+            syncUserToRegistry(newProfile);
             setUser(newProfile);
           }
         } catch (err) {
@@ -183,6 +212,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           };
           await setDoc(userDocRef, profile);
         }
+        syncUserToRegistry(profile);
         setUser(profile);
         return { success: true };
       } catch (err: any) {
@@ -191,6 +221,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     // Modo demo / offline: simular inicio con Google como admin 24722899@uagro.mx
+    syncUserToRegistry(DEFAULT_ADMIN);
     setUser(DEFAULT_ADMIN);
     return { success: true };
   };
@@ -211,6 +242,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             profile.role = 'teacher';
             await setDoc(docRef, { role: 'teacher' }, { merge: true });
           }
+          const now = new Date().toISOString();
+          await setDoc(docRef, { lastLoginAt: now, 'stats.lastActiveDate': now }, { merge: true });
+          profile.lastLoginAt = now;
+          syncUserToRegistry(profile);
           setUser(profile);
         }
         return { success: true };
@@ -220,6 +255,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const mockUser: UserProfile = assignedRole === 'teacher'
             ? { ...DEFAULT_ADMIN, email }
             : { ...DEFAULT_STUDENT, email, displayName: email.split('@')[0] };
+          syncUserToRegistry(mockUser);
           setUser(mockUser);
           return { success: true };
         }
@@ -231,6 +267,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const mockUser: UserProfile = assignedRole === 'teacher'
       ? { ...DEFAULT_ADMIN, email }
       : { ...DEFAULT_STUDENT, email, displayName: email.split('@')[0] };
+    syncUserToRegistry(mockUser);
     setUser(mockUser);
     return { success: true };
   };
@@ -258,6 +295,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         };
         await setDoc(doc(db, 'users', cred.user.uid), newProfile);
+        syncUserToRegistry(newProfile);
         setUser(newProfile);
         return { success: true };
       } catch (err: any) {
@@ -281,6 +319,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         lastActiveDate: new Date().toISOString()
       }
     };
+    syncUserToRegistry(mockUser);
     setUser(mockUser);
     return { success: true };
   };
@@ -332,8 +371,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           ...newStats
         }
       };
+      syncUserToRegistry(updated);
       if (isFirebaseConfigured && auth && user) {
-        setDoc(doc(db, 'users', user.uid), { stats: updated.stats }, { merge: true }).catch(() => {});
+        setDoc(doc(db, 'users', user.uid), { stats: updated.stats, lastActiveDate: new Date().toISOString() }, { merge: true }).catch(() => {});
       }
       return updated;
     });
