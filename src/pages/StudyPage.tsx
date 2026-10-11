@@ -14,30 +14,30 @@ export const StudyPage: React.FC<StudyPageProps> = ({ onPracticeConcept }) => {
   const currentTheory = THEORY_MODULES[selectedObjectiveCode] || THEORY_MODULES['1.1'];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <div className="w-[95%] max-w-[1680px] mx-auto px-2 sm:px-4 lg:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
           <span className="text-xs font-mono font-semibold text-petrol-600 dark:text-petrol-400 uppercase tracking-wider">
             Temario Oficial PCEP-30-02
           </span>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Biblioteca Teórica y Conceptos Clave</h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100">Biblioteca Teórica y Conceptos Clave</h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
             Estudia los conceptos oficiales, analiza errores frecuentes y salta directamente a la práctica de cada habilidad.
           </p>
         </div>
 
         <button
           onClick={() => onPracticeConcept(selectedObjectiveCode)}
-          className="flex items-center gap-2 px-5 py-2.5 bg-petrol-600 hover:bg-petrol-700 text-white rounded-xl text-sm font-medium transition shadow-sm shrink-0"
+          className="flex items-center gap-2 px-5 py-2.5 bg-petrol-600 hover:bg-petrol-700 text-white rounded-xl text-xs sm:text-sm font-semibold transition shadow-sm shrink-0"
         >
           <span>Practicar este concepto</span>
           <ArrowRight className="w-4 h-4" />
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
         {/* Menú Lateral: Temario y Objetivos */}
-        <aside className="lg:col-span-4 space-y-4">
+        <aside className="lg:col-span-4 xl:col-span-3 space-y-4">
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm space-y-5">
             <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 px-2">
               Secciones del Examen
@@ -78,7 +78,7 @@ export const StudyPage: React.FC<StudyPageProps> = ({ onPracticeConcept }) => {
         </aside>
 
         {/* Panel Central: Contenido de Teoría Detallado */}
-        <main className="lg:col-span-8 space-y-6">
+        <main className="lg:col-span-8 xl:col-span-9 space-y-6">
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
             {/* Header del tema */}
             <div className="space-y-2 pb-4 border-b border-slate-200 dark:border-slate-800">
