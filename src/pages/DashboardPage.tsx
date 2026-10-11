@@ -43,37 +43,39 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, onSele
   const section4Score = user ? (progress.sectionScores[4] || 0) : 0;
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="w-[95%] max-w-[1680px] mx-auto px-2 sm:px-4 lg:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
       {/* Saludo y Resumen Principal */}
-      <div className="bg-gradient-to-r from-petrol-900 to-slate-900 rounded-2xl text-white p-6 sm:p-8 shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <span className="text-petrol-300 font-mono text-xs font-semibold uppercase tracking-wider">
-              {user ? 'Certificación Python PCEP-30-02' : 'Certificación Python PCEP-30-02 • Modo Invitado'}
-            </span>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+      <div className="bg-gradient-to-r from-petrol-900 via-slate-900 to-slate-900 rounded-2xl text-white p-6 sm:p-8 lg:p-9 shadow-sm border border-slate-800">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="space-y-2.5 max-w-3xl">
+            <div className="flex items-center gap-2">
+              <span className="text-petrol-300 font-mono text-xs font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-md bg-petrol-950/60 border border-petrol-800/60">
+                {user ? 'Certificación Python PCEP-30-02' : 'Certificación Python PCEP-30-02 • Modo Invitado'}
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white">
               {user ? `Hola, ${user.displayName}` : 'Bienvenido a PCEP Trainer'}
             </h1>
-            <p className="text-slate-300 text-sm max-w-xl">
+            <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
               {user
                 ? 'Estás en camino hacia la certificación oficial. Mantén la racha resolviendo ejercicios diarios y reforzando tus temas clave.'
                 : 'Inicia sesión con tu cuenta para registrar tu progreso oficial, guardar tus simulacros y sincronizar tus estadísticas en la nube.'}
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
             {user ? (
               <>
                 <button
                   onClick={() => onNavigate('practice')}
-                  className="px-5 py-2.5 rounded-xl bg-petrol-500 hover:bg-petrol-600 text-white font-medium text-sm transition flex items-center justify-center gap-2 shadow-sm"
+                  className="px-5 py-3 rounded-xl bg-petrol-500 hover:bg-petrol-600 text-white font-medium text-sm transition flex items-center justify-center gap-2 shadow-sm"
                 >
                   <span>Continuar Practicando</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => onNavigate('exams')}
-                  className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 font-medium text-sm transition flex items-center justify-center gap-2"
+                  className="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 font-medium text-sm transition flex items-center justify-center gap-2"
                 >
                   <span>Simulacro de Examen</span>
                 </button>
@@ -82,14 +84,14 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, onSele
               <>
                 <button
                   onClick={() => onNavigate('login')}
-                  className="px-5 py-2.5 rounded-xl bg-petrol-500 hover:bg-petrol-600 text-white font-medium text-sm transition flex items-center justify-center gap-2 shadow-sm"
+                  className="px-5 py-3 rounded-xl bg-petrol-500 hover:bg-petrol-600 text-white font-medium text-sm transition flex items-center justify-center gap-2 shadow-sm"
                 >
                   <span>Iniciar Sesión en la Nube</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => onNavigate('practice')}
-                  className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 font-medium text-sm transition flex items-center justify-center gap-2"
+                  className="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 font-medium text-sm transition flex items-center justify-center gap-2"
                 >
                   <span>Practicar como Invitado</span>
                 </button>
@@ -100,160 +102,213 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, onSele
 
         {/* Barra de progreso global del examen */}
         <div className="mt-8 pt-6 border-t border-slate-800/80">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-xs font-medium text-slate-300">
+          <div className="flex justify-between items-center mb-2.5">
+            <span className="text-xs sm:text-sm font-medium text-slate-300">
               {user ? 'Tu Progreso Global PCEP' : 'Progreso Global PCEP (Inicia sesión para guardar)'}
             </span>
-            <span className="font-mono text-sm font-bold text-petrol-300">{weightedOverallProgress}%</span>
+            <span className="font-mono text-sm sm:text-base font-bold text-petrol-300">{weightedOverallProgress}%</span>
           </div>
-          <div className="w-full bg-slate-800 rounded-full h-3 overflow-hidden">
+          <div className="w-full bg-slate-800/90 rounded-full h-3.5 overflow-hidden p-0.5 border border-slate-700/50">
             <div
-              className="bg-petrol-400 h-3 rounded-full transition-all duration-700"
+              className="bg-gradient-to-r from-petrol-500 to-petrol-300 h-full rounded-full transition-all duration-700"
               style={{ width: `${weightedOverallProgress}%` }}
             />
           </div>
         </div>
       </div>
 
-      {/* Tarjetas de Métricas Estadísticas (Requerimiento 30) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Tarjetas de Métricas Estadísticas Distribuidas Uniformemente */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5">
         {/* Racha */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 flex items-center justify-center shrink-0">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-md transition flex items-center gap-4">
+          <div className="w-13 h-13 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 flex items-center justify-center shrink-0">
             <Flame className="w-6 h-6 fill-amber-500" />
           </div>
-          <div>
-            <div className="text-xs text-slate-500 font-medium">Racha Actual</div>
-            <div className="text-2xl font-bold text-slate-900 dark:text-slate-100 font-mono">
+          <div className="min-w-0">
+            <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">Racha Actual</div>
+            <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 font-mono tracking-tight">
               {user ? `${user.stats.currentStreakDays} días` : '0 días'}
             </div>
-            {!user && <div className="text-[10px] text-slate-400">Inicia sesión</div>}
+            <div className="text-[11px] text-slate-400 truncate">
+              {user ? 'Constancia diaria' : 'Inicia sesión'}
+            </div>
           </div>
         </div>
 
         {/* Ejercicios Resueltos */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 flex items-center justify-center shrink-0">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-md transition flex items-center gap-4">
+          <div className="w-13 h-13 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 flex items-center justify-center shrink-0">
             <CheckCircle className="w-6 h-6" />
           </div>
-          <div>
-            <div className="text-xs text-slate-500 font-medium">Ejercicios Resueltos</div>
-            <div className="text-2xl font-bold text-slate-900 dark:text-slate-100 font-mono">
+          <div className="min-w-0">
+            <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">Ejercicios Resueltos</div>
+            <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 font-mono tracking-tight">
               {user ? user.stats.totalSolved : 0}
             </div>
-            {!user && <div className="text-[10px] text-slate-400">Modo invitado</div>}
+            <div className="text-[11px] text-slate-400 truncate">
+              {user ? 'De todo el temario' : 'Modo invitado'}
+            </div>
           </div>
         </div>
 
-        {/* Precisión */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-sky-50 dark:bg-sky-950/40 text-sky-600 flex items-center justify-center shrink-0">
+        {/* Precisión Media */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-md transition flex items-center gap-4">
+          <div className="w-13 h-13 rounded-2xl bg-sky-50 dark:bg-sky-950/40 text-sky-600 flex items-center justify-center shrink-0">
             <Target className="w-6 h-6" />
           </div>
-          <div>
-            <div className="text-xs text-slate-500 font-medium">Precisión Media</div>
-            <div className="text-2xl font-bold text-slate-900 dark:text-slate-100 font-mono">
+          <div className="min-w-0">
+            <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">Precisión Media</div>
+            <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 font-mono tracking-tight">
               {user ? `${user.stats.accuracyPercentage}%` : '--%'}
             </div>
-            {!user && <div className="text-[10px] text-slate-400">Sin registrar</div>}
+            <div className="text-[11px] text-slate-400 truncate">
+              {user ? 'Aciertos en primer intento' : 'Sin registrar'}
+            </div>
           </div>
         </div>
 
         {/* Tiempo Practicando */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 flex items-center justify-center shrink-0">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-md transition flex items-center gap-4">
+          <div className="w-13 h-13 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 flex items-center justify-center shrink-0">
             <Clock className="w-6 h-6" />
           </div>
-          <div>
-            <div className="text-xs text-slate-500 font-medium">Tiempo Practicando</div>
-            <div className="text-2xl font-bold text-slate-900 dark:text-slate-100 font-mono">
+          <div className="min-w-0">
+            <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">Tiempo Practicando</div>
+            <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 font-mono tracking-tight">
               {user ? formatStudyTime(user.stats.studyTimeSeconds) : '0h 0m'}
             </div>
-            {!user && <div className="text-[10px] text-slate-400">Sin registrar</div>}
+            <div className="text-[11px] text-slate-400 truncate">
+              {user ? 'En la plataforma' : 'Sin registrar'}
+            </div>
           </div>
         </div>
       </div>
 
       {/* Secciones de Estudio PCEP con sus pesos oficiales */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-            Rendimiento por Sección del Examen Oficial
-          </h2>
-          <span className="text-xs text-slate-500 font-medium">
-            {user ? 'Criterio de aprobación PCEP: 70%' : 'Inicia sesión para registrar tu rendimiento'}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100">
+              Rendimiento por Sección del Examen Oficial
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Ponderación oficial para acreditar la certificación PCEP-30-02 (mínimo 70% requerido).
+            </p>
+          </div>
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-petrol-50 dark:bg-petrol-950/60 text-petrol-700 dark:text-petrol-300 border border-petrol-200 dark:border-petrol-800 self-start sm:self-auto">
+            {user ? 'Criterio de aprobación: 70%' : 'Modo Invitado (Sin guardar)'}
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5">
           {/* Sección 1 */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 space-y-3">
-            <div className="flex justify-between items-start">
-              <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                Sección 1 (18%)
-              </span>
-              <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{section1Score}%</span>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between gap-4">
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                  Sección 1 (18%)
+                </span>
+                <span className="text-xs font-bold font-mono px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300">
+                  {section1Score}%
+                </span>
+              </div>
+              <div>
+                <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100">Fundamentos de Python</h3>
+                <p className="text-xs text-slate-500 leading-relaxed mt-1">Operadores, literales, sep/end, int/float.</p>
+              </div>
             </div>
-            <div>
-              <div className="text-sm font-semibold text-slate-800 dark:text-slate-200">Fundamentos de Python</div>
-              <p className="text-xs text-slate-500 mt-0.5">Operadores, literales, sep/end, int/float.</p>
+            <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+              <div className="flex justify-between text-[11px] text-slate-400 font-mono">
+                <span>Dominio</span>
+                <span>{section1Score >= 70 ? 'Aprobado' : `${Math.max(0, 70 - section1Score)}% para 70%`}</span>
+              </div>
+              <ProgressBar value={section1Score} showPercent={false} color="emerald" size="sm" />
             </div>
-            <ProgressBar value={section1Score} showPercent={false} color="emerald" size="sm" />
           </div>
 
           {/* Sección 2 */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 space-y-3">
-            <div className="flex justify-between items-start">
-              <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                Sección 2 (29%)
-              </span>
-              <span className="text-xs font-bold text-petrol-600 dark:text-petrol-400">{section2Score}%</span>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between gap-4">
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                  Sección 2 (29%)
+                </span>
+                <span className="text-xs font-bold font-mono px-2 py-0.5 rounded bg-petrol-50 dark:bg-petrol-950/60 text-petrol-700 dark:text-petrol-300">
+                  {section2Score}%
+                </span>
+              </div>
+              <div>
+                <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100">Flujo de Control</h3>
+                <p className="text-xs text-slate-500 leading-relaxed mt-1">Condicionales, while, for, range, break, else.</p>
+              </div>
             </div>
-            <div>
-              <div className="text-sm font-semibold text-slate-800 dark:text-slate-200">Flujo de Control</div>
-              <p className="text-xs text-slate-500 mt-0.5">Condicionales, while, for, range, break, else.</p>
+            <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+              <div className="flex justify-between text-[11px] text-slate-400 font-mono">
+                <span>Dominio</span>
+                <span>{section2Score >= 70 ? 'Aprobado' : `${Math.max(0, 70 - section2Score)}% para 70%`}</span>
+              </div>
+              <ProgressBar value={section2Score} showPercent={false} color="petrol" size="sm" />
             </div>
-            <ProgressBar value={section2Score} showPercent={false} color="petrol" size="sm" />
           </div>
 
           {/* Sección 3 */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 space-y-3">
-            <div className="flex justify-between items-start">
-              <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                Sección 3 (25%)
-              </span>
-              <span className="text-xs font-bold text-amber-600 dark:text-amber-400">{section3Score}%</span>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between gap-4">
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                  Sección 3 (25%)
+                </span>
+                <span className="text-xs font-bold font-mono px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300">
+                  {section3Score}%
+                </span>
+              </div>
+              <div>
+                <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100">Colecciones de Datos</h3>
+                <p className="text-xs text-slate-500 leading-relaxed mt-1">Listas, tuplas, diccionarios, strings y slicing.</p>
+              </div>
             </div>
-            <div>
-              <div className="text-sm font-semibold text-slate-800 dark:text-slate-200">Colecciones de Datos</div>
-              <p className="text-xs text-slate-500 mt-0.5">Listas, tuplas, diccionarios, strings y slicing.</p>
+            <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+              <div className="flex justify-between text-[11px] text-slate-400 font-mono">
+                <span>Dominio</span>
+                <span>{section3Score >= 70 ? 'Aprobado' : `${Math.max(0, 70 - section3Score)}% para 70%`}</span>
+              </div>
+              <ProgressBar value={section3Score} showPercent={false} color="amber" size="sm" />
             </div>
-            <ProgressBar value={section3Score} showPercent={false} color="amber" size="sm" />
           </div>
 
           {/* Sección 4 */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 space-y-3">
-            <div className="flex justify-between items-start">
-              <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                Sección 4 (28%)
-              </span>
-              <span className="text-xs font-bold text-rose-600 dark:text-rose-400">{section4Score}%</span>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between gap-4">
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                  Sección 4 (28%)
+                </span>
+                <span className="text-xs font-bold font-mono px-2 py-0.5 rounded bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300">
+                  {section4Score}%
+                </span>
+              </div>
+              <div>
+                <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100">Funciones y Excepciones</h3>
+                <p className="text-xs text-slate-500 leading-relaxed mt-1">Scope, try-except, jerarquía y argumentos.</p>
+              </div>
             </div>
-            <div>
-              <div className="text-sm font-semibold text-slate-800 dark:text-slate-200">Funciones y Excepciones</div>
-              <p className="text-xs text-slate-500 mt-0.5">Scope, try-except, jerarquía y argumentos.</p>
+            <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+              <div className="flex justify-between text-[11px] text-slate-400 font-mono">
+                <span>Dominio</span>
+                <span>{section4Score >= 70 ? 'Aprobado' : `${Math.max(0, 70 - section4Score)}% para 70%`}</span>
+              </div>
+              <ProgressBar value={section4Score} showPercent={false} color="rose" size="sm" />
             </div>
-            <ProgressBar value={section4Score} showPercent={false} color="rose" size="sm" />
           </div>
         </div>
       </div>
 
-      {/* Grid Inferior: Temas Débiles & Recomendados Para Ti */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Tus Temas Débiles (Requerimiento 14, 21 y 30) */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-4">
+      {/* Grid Inferior: Proporción Equilibrada entre Temas Débiles y Recomendados */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+        {/* Tus Temas Débiles (4 columnas en XL, 5 en LG) */}
+        <div className="lg:col-span-5 xl:col-span-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 space-y-4 shadow-sm">
           <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400 font-bold text-sm">
-            <AlertTriangle className="w-4 h-4" />
+            <AlertTriangle className="w-4 h-4 shrink-0" />
             <span>Tus Temas Débiles a Reforzar</span>
           </div>
           <p className="text-xs text-slate-500 leading-relaxed">
@@ -272,12 +327,12 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, onSele
                   '4.2': 'Variables locales, globales y scope'
                 };
                 return (
-                  <div key={objCode} className="p-3 rounded-lg border border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/40 space-y-1.5">
-                    <div className="flex justify-between text-xs">
-                      <span className="font-semibold text-slate-800 dark:text-slate-200">
+                  <div key={objCode} className="p-3.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-950/40 space-y-2">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="font-semibold text-slate-800 dark:text-slate-200 truncate pr-2">
                         {objCode} &bull; {titleMap[objCode] || `Objetivo ${objCode}`}
                       </span>
-                      <span className="font-mono text-rose-600 dark:text-rose-400 font-bold">{mastery}%</span>
+                      <span className="font-mono text-rose-600 dark:text-rose-400 font-bold shrink-0">{mastery}%</span>
                     </div>
                     <ProgressBar value={mastery} showPercent={false} color="rose" size="sm" />
                   </div>
@@ -285,8 +340,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, onSele
               })}
             </div>
           ) : (
-            <div className="p-5 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 text-center space-y-3">
-              <p className="text-xs text-slate-500">
+            <div className="p-6 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 text-center space-y-3">
+              <p className="text-xs text-slate-500 leading-relaxed">
                 {user
                   ? 'Aún no se detectan temas débiles. ¡Resuelve ejercicios y simulacros para generar tu diagnóstico!'
                   : 'Inicia sesión y realiza ejercicios para que el sistema detecte automáticamente tus áreas de mejora.'}
@@ -294,14 +349,14 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, onSele
               {!user ? (
                 <button
                   onClick={() => onNavigate('login')}
-                  className="px-4 py-2 text-xs font-semibold rounded-lg bg-petrol-600 hover:bg-petrol-700 text-white transition shadow-sm"
+                  className="px-4 py-2 text-xs font-semibold rounded-xl bg-petrol-600 hover:bg-petrol-700 text-white transition shadow-sm"
                 >
                   Iniciar Sesión
                 </button>
               ) : (
                 <button
                   onClick={() => onNavigate('practice')}
-                  className="px-4 py-2 text-xs font-semibold rounded-lg border border-petrol-300 dark:border-petrol-700 text-petrol-600 dark:text-petrol-400 hover:bg-petrol-50 dark:hover:bg-petrol-950/50 transition"
+                  className="px-4 py-2 text-xs font-semibold rounded-xl border border-petrol-300 dark:border-petrol-700 text-petrol-600 dark:text-petrol-400 hover:bg-petrol-50 dark:hover:bg-petrol-950/50 transition"
                 >
                   Practicar Ejercicios
                 </button>
@@ -312,23 +367,23 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, onSele
           {user && progress.weakObjectives.length > 0 && (
             <button
               onClick={() => onNavigate('practice')}
-              className="w-full mt-2 py-2 text-xs font-semibold text-petrol-600 dark:text-petrol-400 border border-petrol-200 dark:border-petrol-800 rounded-lg hover:bg-petrol-50 dark:hover:bg-petrol-950/50 transition"
+              className="w-full mt-2 py-2.5 text-xs font-semibold text-petrol-600 dark:text-petrol-400 border border-petrol-200 dark:border-petrol-800 rounded-xl hover:bg-petrol-50 dark:hover:bg-petrol-950/50 transition"
             >
               Practicar debilidades ahora
             </button>
           )}
         </div>
 
-        {/* Recomendados Para Ti (2 columnas) */}
-        <div className="lg:col-span-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-4">
-          <div className="flex items-center justify-between">
+        {/* Recomendados Para Ti (8 columnas en XL, 7 en LG) */}
+        <div className="lg:col-span-7 xl:col-span-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 space-y-4 shadow-sm">
+          <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-2 font-bold text-sm text-slate-900 dark:text-slate-100">
               <Sparkles className="w-4 h-4 text-petrol-600" />
               <span>Ejercicios Recomendados para Ti</span>
             </div>
             <button
               onClick={() => onNavigate('practice')}
-              className="text-xs font-medium text-petrol-600 hover:text-petrol-700 flex items-center gap-1"
+              className="text-xs font-medium text-petrol-600 hover:text-petrol-700 flex items-center gap-1 transition"
             >
               <span>Ver todos</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -343,46 +398,52 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, onSele
                   onSelectExercise(exercise.id);
                   onNavigate('practice');
                 }}
-                className="group p-4 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-petrol-500 dark:hover:border-petrol-600 hover:bg-slate-50/50 dark:hover:bg-slate-800/40 cursor-pointer transition flex items-center justify-between gap-4"
+                className="group p-4 sm:p-5 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-petrol-500 dark:hover:border-petrol-600 hover:bg-slate-50/70 dark:hover:bg-slate-800/40 cursor-pointer transition flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm hover:shadow"
               >
-                <div className="space-y-1.5 min-w-0">
+                <div className="space-y-1.5 min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[11px] font-mono px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                    <span className="text-[11px] font-mono font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                       Obj {exercise.pcepObjective}
                     </span>
                     <DifficultyBadge difficulty={exercise.difficulty} />
                     <ExerciseTypeBadge type={exercise.type} />
+                    <span className="text-[11px] text-slate-400 font-medium hidden md:inline">
+                      &bull; {exercise.topic}
+                    </span>
                   </div>
-                  <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate group-hover:text-petrol-600 dark:group-hover:text-petrol-400 transition">
+                  <h3 className="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-200 group-hover:text-petrol-600 dark:group-hover:text-petrol-400 transition">
                     {exercise.title}
                   </h3>
-                  <p className="text-xs text-slate-500 truncate">{exercise.statement}</p>
+                  <p className="text-xs sm:text-sm text-slate-500 line-clamp-1 leading-relaxed">
+                    {exercise.statement}
+                  </p>
                 </div>
 
-                <div className="shrink-0 flex items-center gap-2 text-xs font-medium text-petrol-600 opacity-0 group-hover:opacity-100 transition">
+                <div className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 group-hover:bg-petrol-600 group-hover:text-white text-xs font-semibold text-slate-700 dark:text-slate-300 transition self-start sm:self-center">
                   <span>Resolver</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </div>
             ))}
           </div>
 
           {/* Banner de Próximo Simulacro */}
-          <div className="mt-4 p-4 rounded-xl bg-petrol-50 dark:bg-petrol-950/40 border border-petrol-200 dark:border-petrol-900/60 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-petrol-600 text-white flex items-center justify-center shrink-0">
+          <div className="mt-4 p-4 sm:p-5 rounded-xl bg-gradient-to-r from-petrol-50 to-slate-50 dark:from-petrol-950/40 dark:to-slate-900/60 border border-petrol-200 dark:border-petrol-900/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-xl bg-petrol-600 text-white flex items-center justify-center shrink-0 shadow-sm">
                 <Trophy className="w-5 h-5" />
               </div>
               <div>
-                <div className="text-xs font-bold text-slate-900 dark:text-slate-100">Próximo Simulacro PCEP Recomendado</div>
-                <div className="text-[11px] text-slate-500">30 preguntas balanceadas con tiempo límite (45 min)</div>
+                <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100">Próximo Simulacro PCEP Recomendado</div>
+                <div className="text-[11px] sm:text-xs text-slate-500">30 preguntas balanceadas con tiempo límite oficial (45 min)</div>
               </div>
             </div>
             <button
               onClick={() => onNavigate('exams')}
-              className="px-3.5 py-1.5 bg-petrol-600 hover:bg-petrol-700 text-white rounded-lg text-xs font-medium transition shadow-sm"
+              className="px-4 py-2 bg-petrol-600 hover:bg-petrol-700 text-white rounded-xl text-xs sm:text-sm font-semibold transition shadow-sm shrink-0 flex items-center justify-center gap-1.5"
             >
-              Comenzar Examen
+              <span>Comenzar Examen</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
