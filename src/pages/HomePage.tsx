@@ -1,5 +1,6 @@
 import React from 'react';
-import { Code2, ArrowRight, BookOpen, CheckSquare, Terminal, Award, ShieldCheck } from 'lucide-react';
+import { ArrowRight, ShieldCheck, BarChart2, LogIn } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 interface HomePageProps {
   onStart: () => void;
@@ -7,6 +8,8 @@ interface HomePageProps {
 }
 
 export const HomePage: React.FC<HomePageProps> = ({ onStart, onLogin }) => {
+  const { user } = useAuth();
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-12 sm:py-20 space-y-16">
       {/* Hero Principal Sobrio y Profesional */}
@@ -28,62 +31,93 @@ export const HomePage: React.FC<HomePageProps> = ({ onStart, onLogin }) => {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
           <button
             onClick={onStart}
-            className="w-full sm:w-auto px-8 py-3.5 bg-petrol-600 hover:bg-petrol-700 text-white rounded-xl font-semibold text-sm transition shadow-sm flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-8 py-3.5 bg-petrol-600 hover:bg-petrol-700 text-white rounded-xl font-semibold text-sm transition shadow-sm flex items-center justify-center gap-2 group"
           >
             <span>Comenzar a Practicar</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
 
-          <button
-            onClick={onLogin || onStart}
-            className="w-full sm:w-auto px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl font-semibold text-sm transition"
-          >
-            <span>Iniciar Sesión en la Nube</span>
-          </button>
+          {user ? (
+            <button
+              onClick={onStart}
+              className="w-full sm:w-auto px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2 shadow-sm"
+            >
+              <BarChart2 className="w-4 h-4 text-petrol-600" />
+              <span>Ir a mi Panel ({user.displayName?.split(' ')[0]})</span>
+            </button>
+          ) : (
+            <button
+              onClick={onLogin || onStart}
+              className="w-full sm:w-auto px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2 shadow-sm"
+            >
+              <LogIn className="w-4 h-4 text-petrol-600" />
+              <span>Iniciar Sesión en la Nube</span>
+            </button>
+          )}
         </div>
       </div>
 
       {/* Las 4 Secciones del Temario */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 shadow-sm">
+        <div
+          onClick={onStart}
+          className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 shadow-sm hover:border-petrol-400 dark:hover:border-petrol-600 hover:shadow-md transition cursor-pointer group"
+        >
           <div className="flex justify-between items-center text-xs">
-            <span className="font-mono font-bold text-petrol-600 dark:text-petrol-400">Sección 1</span>
+            <span className="font-mono font-bold text-petrol-600 dark:text-petrol-400 group-hover:underline">Sección 1</span>
             <span className="font-semibold text-slate-400">18% del Examen</span>
           </div>
-          <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Fundamentos y Programación Python</h3>
+          <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-petrol-600 dark:group-hover:text-petrol-400 transition">
+            Fundamentos y Programación Python
+          </h3>
           <p className="text-xs text-slate-500 leading-relaxed">
             Intérprete vs compilador, léxico, literales (0o, 0x, binarios), operadores aritméticos, precedencia, asociatividad y E/S de consola con print(sep, end).
           </p>
         </div>
 
-        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 shadow-sm">
+        <div
+          onClick={onStart}
+          className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 shadow-sm hover:border-petrol-400 dark:hover:border-petrol-600 hover:shadow-md transition cursor-pointer group"
+        >
           <div className="flex justify-between items-center text-xs">
-            <span className="font-mono font-bold text-petrol-600 dark:text-petrol-400">Sección 2</span>
+            <span className="font-mono font-bold text-petrol-600 dark:text-petrol-400 group-hover:underline">Sección 2</span>
             <span className="font-semibold text-slate-400">29% del Examen</span>
           </div>
-          <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Flujo de Control</h3>
+          <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-petrol-600 dark:group-hover:text-petrol-400 transition">
+            Flujo de Control
+          </h3>
           <p className="text-xs text-slate-500 leading-relaxed">
             Condicionales anidados, cortocircuito booleano (and, or), bucles while y for, función range(), sentencias break, continue y la cláusula else en bucles.
           </p>
         </div>
 
-        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 shadow-sm">
+        <div
+          onClick={onStart}
+          className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 shadow-sm hover:border-petrol-400 dark:hover:border-petrol-600 hover:shadow-md transition cursor-pointer group"
+        >
           <div className="flex justify-between items-center text-xs">
-            <span className="font-mono font-bold text-petrol-600 dark:text-petrol-400">Sección 3</span>
+            <span className="font-mono font-bold text-petrol-600 dark:text-petrol-400 group-hover:underline">Sección 3</span>
             <span className="font-semibold text-slate-400">25% del Examen</span>
           </div>
-          <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Colecciones de Datos</h3>
+          <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-petrol-600 dark:group-hover:text-petrol-400 transition">
+            Colecciones de Datos
+          </h3>
           <p className="text-xs text-slate-500 leading-relaxed">
             Listas (indexing, slicing, clonado vs referencia), inmutabilidad de tuplas, diccionarios (keys, values, items) y manipulación de cadenas de caracteres.
           </p>
         </div>
 
-        <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 shadow-sm">
+        <div
+          onClick={onStart}
+          className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 shadow-sm hover:border-petrol-400 dark:hover:border-petrol-600 hover:shadow-md transition cursor-pointer group"
+        >
           <div className="flex justify-between items-center text-xs">
-            <span className="font-mono font-bold text-petrol-600 dark:text-petrol-400">Sección 4</span>
+            <span className="font-mono font-bold text-petrol-600 dark:text-petrol-400 group-hover:underline">Sección 4</span>
             <span className="font-semibold text-slate-400">28% del Examen</span>
           </div>
-          <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Funciones y Excepciones</h3>
+          <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-petrol-600 dark:group-hover:text-petrol-400 transition">
+            Funciones y Excepciones
+          </h3>
           <p className="text-xs text-slate-500 leading-relaxed">
             Definición con def, return y None, argumentos posicionales y keyword, scopes y global, jerarquía de Built-in Exceptions y bloques try-except.
           </p>
