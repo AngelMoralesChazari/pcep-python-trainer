@@ -47,6 +47,8 @@ export interface UserStats {
   studyTimeSeconds: number;
   currentStreakDays: number;
   lastActiveDate: string;
+  lastSimulacroScore?: number | null;
+  weakTopics?: string[];
 }
 
 export interface UserProfile {
@@ -56,6 +58,10 @@ export interface UserProfile {
   role: 'student' | 'teacher' | 'admin';
   createdAt: string;
   stats: UserStats;
+  lastLoginAt?: string;
+  lastSimulacroScore?: number | null;
+  weakTopics?: string[];
+  progressPercentage?: number;
 }
 
 export interface SubmissionAttempt {
