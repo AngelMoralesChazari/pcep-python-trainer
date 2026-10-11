@@ -57,7 +57,7 @@ export const ChallengesPage: React.FC = () => {
 
   if (!sprintStarted) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+      <div className="w-[95%] max-w-5xl xl:max-w-6xl mx-auto px-2 sm:px-4 py-8 space-y-6">
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-sm space-y-6">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold">
@@ -153,7 +153,7 @@ export const ChallengesPage: React.FC = () => {
   const activeChallenge = challengeExercises[currentIndex];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <div className="w-[95%] max-w-[1680px] mx-auto px-2 sm:px-4 lg:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
       {/* Barra de tiempo y progreso */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm flex items-center justify-between">
         <div className="flex items-center gap-2">
