@@ -110,7 +110,7 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({ exercise, onNext
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm p-6 max-w-4xl mx-auto space-y-6">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm p-6 sm:p-8 w-full max-w-5xl xl:max-w-6xl mx-auto space-y-6 sm:space-y-7">
       {/* Cabecera del ejercicio */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
         <div className="space-y-1">
