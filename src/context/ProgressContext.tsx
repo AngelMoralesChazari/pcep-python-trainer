@@ -1,4 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { doc, setDoc } from 'firebase/firestore';
+import { db, isFirebaseConfigured } from '../lib/firebase';
+import { useAuth } from './AuthContext';
 import { Exercise, StudentProgress, SubmissionAttempt, ExamAttempt, PCEPObjectiveCode } from '../types';
 import { SEED_EXERCISES } from '../data/seedExercises';
 import { ExerciseGenerator } from '../services/exerciseGenerator';
@@ -51,6 +54,8 @@ const EMPTY_PROGRESS: StudentProgress = {
 const ProgressContext = createContext<ProgressContextType | undefined>(undefined);
 
 export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, updateUserStats } = useAuth();
+
   const [exercises, setExercises] = useState<Exercise[]>(() => {
     const saved = localStorage.getItem('pcep_exercises_bank');
     if (saved) {
@@ -103,14 +108,45 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, [examAttempts]);
 
   const recordSubmission = (attemptData: Omit<SubmissionAttempt, 'id' | 'timestamp' | 'userId'>) => {
+    const currentUserId = user?.uid || progress.userId || 'guest';
     const newSubmission: SubmissionAttempt = {
       ...attemptData,
       id: `sub-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-      userId: progress.userId,
+      userId: currentUserId,
       timestamp: new Date().toISOString()
     };
 
     setSubmissions(prev => [newSubmission, ...prev]);
+
+    // Actualizar estadísticas del usuario activo si está autenticado
+    if (user) {
+      const prevSolved = user.stats?.totalSolved || 0;
+      const prevAttempts = user.stats?.totalAttempts || 0;
+      const newAttempts = prevAttempts + 1;
+      const newSolved = prevSolved + (attemptData.isCorrect ? 1 : 0);
+      const newAccuracy = Math.round((newSolved / newAttempts) * 100);
+      const now = new Date().toISOString();
+
+      updateUserStats({
+        totalAttempts: newAttempts,
+        totalSolved: newSolved,
+        accuracyPercentage: newAccuracy,
+        lastActiveDate: now
+      });
+
+      if (isFirebaseConfigured && db && user.uid) {
+        setDoc(doc(db, 'users', user.uid), {
+          stats: {
+            ...user.stats,
+            totalAttempts: newAttempts,
+            totalSolved: newSolved,
+            accuracyPercentage: newAccuracy,
+            lastActiveDate: now
+          },
+          lastActiveDate: now
+        }, { merge: true }).catch(() => {});
+      }
+    }
 
     // Actualizar progreso del ejercicio
     const ex = exercises.find(e => e.id === attemptData.exerciseId);
@@ -149,13 +185,29 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const recordExamAttempt = (examData: Omit<ExamAttempt, 'id' | 'timestamp' | 'userId'>) => {
+    const currentUserId = user?.uid || progress.userId || 'guest';
     const attempt: ExamAttempt = {
       ...examData,
       id: `exam-${Date.now()}`,
-      userId: progress.userId,
+      userId: currentUserId,
       timestamp: new Date().toISOString()
     };
     setExamAttempts(prev => [attempt, ...prev]);
+
+    if (user) {
+      const now = new Date().toISOString();
+      updateUserStats({
+        lastActiveDate: now
+      });
+
+      if (isFirebaseConfigured && db && user.uid) {
+        setDoc(doc(db, 'users', user.uid), {
+          lastSimulacroScore: examData.scorePercentage,
+          weakTopics: examData.weakObjectives || [],
+          lastActiveDate: now
+        }, { merge: true }).catch(() => {});
+      }
+    }
   };
 
   const toggleFavorite = (exerciseId: string) => {
