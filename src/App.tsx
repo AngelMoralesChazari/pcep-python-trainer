@@ -126,7 +126,7 @@ const AppContent: React.FC = () => {
       </main>
 
       <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-6 text-center text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <div className="w-[95%] max-w-[1680px] mx-auto px-2 sm:px-4 lg:px-6 flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>&copy; {new Date().getFullYear()} PCEP Trainer &bull; Preparación Python Certificada PCEP-30-02</span>
         </div>
       </footer>
