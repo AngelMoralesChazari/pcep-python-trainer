@@ -235,7 +235,7 @@ export const TeacherDashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <div className="w-[95%] max-w-[1680px] mx-auto px-2 sm:px-4 lg:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
       {/* Encabezado con estado de conexión en vivo */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
@@ -376,7 +376,7 @@ export const TeacherDashboardPage: React.FC = () => {
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               {/* Tabla de Alumnos Reales */}
-              <div className="lg:col-span-7 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+              <div className="lg:col-span-7 xl:col-span-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                     Cohorte PCEP ({filteredStudents.length} {filteredStudents.length === 1 ? 'Usuario' : 'Usuarios'})
@@ -461,7 +461,7 @@ export const TeacherDashboardPage: React.FC = () => {
 
               {/* Ficha Diagnóstica del Alumno Seleccionado */}
               {selectedStudent && (
-                <div className="lg:col-span-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-5">
+                <div className="lg:col-span-5 xl:col-span-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-5">
                   <div className="space-y-1 pb-4 border-b border-slate-200 dark:border-slate-800">
                     <span className="text-xs font-mono font-semibold text-slate-400">
                       Diagnóstico Individual del Estudiante
