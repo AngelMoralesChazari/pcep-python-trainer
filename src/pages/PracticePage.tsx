@@ -95,7 +95,7 @@ export const PracticePage: React.FC<PracticePageProps> = ({
   // Si hay un ejercicio activo, mostrar la interfaz de resolución interactiva
   if (activeExercise) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <div className="w-[95%] max-w-[1680px] mx-auto px-2 sm:px-4 lg:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
         <div className="flex items-center justify-between">
           <button
             onClick={handleBackToList}
@@ -119,7 +119,7 @@ export const PracticePage: React.FC<PracticePageProps> = ({
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <div className="w-[95%] max-w-[1680px] mx-auto px-2 sm:px-4 lg:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
       {/* Encabezado y Acciones */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
