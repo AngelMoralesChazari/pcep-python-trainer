@@ -59,12 +59,12 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab, isDark,
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur border-b border-slate-200 dark:border-slate-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+      <div className="w-[95%] max-w-[1680px] mx-auto px-2 sm:px-4 lg:px-6">
+        <div className="flex items-center justify-between h-16 gap-3 sm:gap-4">
           {/* Logo y título */}
           <button
             type="button"
-            className="flex items-center gap-3 cursor-pointer group text-left select-none focus:outline-none"
+            className="flex items-center gap-3 cursor-pointer group text-left select-none focus:outline-none shrink-0"
             onClick={() => handleNavClick('home')}
             title="Ir a la pantalla de bienvenida (PCEP Trainer)"
           >
@@ -88,12 +88,12 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab, isDark,
                   30-02
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 font-medium">Preparación Python Certificada</p>
+              <p className="text-[11px] text-slate-500 font-medium hidden sm:block">Preparación Python Certificada</p>
             </div>
           </button>
 
           {/* Navegación Desktop */}
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = currentTab === item.id;
@@ -101,13 +101,13 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab, isDark,
                 <button
                   key={item.id}
                   onClick={() => handleNavClick(item.id)}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition ${
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs xl:text-sm font-medium transition ${
                     isActive
                       ? 'bg-petrol-50 text-petrol-700 dark:bg-petrol-950/60 dark:text-petrol-300 font-semibold'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60'
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon className="w-4 h-4 shrink-0" />
                   <span>{item.label}</span>
                 </button>
               );
