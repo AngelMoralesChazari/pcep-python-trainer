@@ -62,20 +62,35 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab, isDark,
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo y título */}
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => handleNavClick('dashboard')}>
-            <div className="w-9 h-9 rounded-xl bg-petrol-700 dark:bg-petrol-600 text-white flex items-center justify-center font-bold shadow-sm">
+          <button
+            type="button"
+            className="flex items-center gap-3 cursor-pointer group text-left select-none focus:outline-none"
+            onClick={() => handleNavClick('home')}
+            title="Ir a la pantalla de bienvenida (PCEP Trainer)"
+          >
+            <div className={`w-9 h-9 rounded-xl text-white flex items-center justify-center font-bold shadow-sm transition ${
+              currentTab === 'home'
+                ? 'bg-petrol-800 dark:bg-petrol-500 ring-2 ring-petrol-400 ring-offset-2 dark:ring-offset-slate-900 scale-105'
+                : 'bg-petrol-700 dark:bg-petrol-600 group-hover:scale-105 group-hover:bg-petrol-800'
+            }`}>
               <Code2 className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-bold text-base text-slate-900 dark:text-slate-100 tracking-tight">PCEP Trainer</span>
+                <span className={`font-bold text-base tracking-tight transition ${
+                  currentTab === 'home'
+                    ? 'text-petrol-700 dark:text-petrol-400'
+                    : 'text-slate-900 dark:text-slate-100 group-hover:text-petrol-700 dark:group-hover:text-petrol-400'
+                }`}>
+                  PCEP Trainer
+                </span>
                 <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-petrol-100 dark:bg-petrol-900 text-petrol-800 dark:text-petrol-200">
                   30-02
                 </span>
               </div>
               <p className="text-[11px] text-slate-500 font-medium">Preparación Python Certificada</p>
             </div>
-          </div>
+          </button>
 
           {/* Navegación Desktop */}
           <nav className="hidden lg:flex items-center gap-1">
@@ -215,6 +230,17 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab, isDark,
       {/* Menú Móvil */}
       {mobileMenuOpen && (
         <div className="lg:hidden px-4 pt-2 pb-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-1">
+          <button
+            onClick={() => handleNavClick('home')}
+            className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition ${
+              currentTab === 'home'
+                ? 'bg-petrol-50 text-petrol-700 dark:bg-petrol-950/60 dark:text-petrol-300 font-semibold'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
+            }`}
+          >
+            <Code2 className="w-4 h-4" />
+            <span>Inicio (Bienvenida)</span>
+          </button>
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentTab === item.id;
