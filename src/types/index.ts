@@ -49,6 +49,10 @@ export interface UserStats {
   lastActiveDate: string;
   lastSimulacroScore?: number | null;
   weakTopics?: string[];
+  streakStatus?: 'active' | 'paused' | 'pending';
+  lastConfirmedStreakDate?: string;
+  todayConnectedSeconds?: number;
+  isTodayStreakConfirmed?: boolean;
 }
 
 export interface UserProfile {
