@@ -257,14 +257,14 @@ export const PracticePage: React.FC<PracticePageProps> = ({
         </div>
       </div>
 
-      {/* Lista de Ejercicios */}
-      <div className="space-y-3">
-        {filteredExercises.length === 0 ? (
-          <div className="text-center py-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
-            <p className="text-sm text-slate-500">No se encontraron ejercicios con los filtros seleccionados.</p>
-          </div>
-        ) : (
-          filteredExercises.map((exercise) => {
+      {/* Cuadrícula de Ejercicios */}
+      {filteredExercises.length === 0 ? (
+        <div className="text-center py-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
+          <p className="text-sm text-slate-500">No se encontraron ejercicios con los filtros seleccionados.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredExercises.map((exercise) => {
             const isSolved = solvedSet.has(exercise.id);
             const isFailed = failedSet.has(exercise.id);
             const isFav = favoriteSet.has(exercise.id);
@@ -273,52 +273,57 @@ export const PracticePage: React.FC<PracticePageProps> = ({
               <div
                 key={exercise.id}
                 onClick={() => setActiveExerciseId(exercise.id)}
-                className="group p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-petrol-500 dark:hover:border-petrol-600 rounded-xl transition cursor-pointer flex items-center justify-between gap-4 shadow-sm"
+                className="group p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-petrol-500 dark:hover:border-petrol-600 rounded-xl transition cursor-pointer flex flex-col justify-between gap-3 shadow-sm hover:shadow-md"
               >
-                <div className="space-y-1.5 min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-mono text-[11px] font-semibold px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                      Obj {exercise.pcepObjective}
-                    </span>
-                    <DifficultyBadge difficulty={exercise.difficulty} />
-                    <ExerciseTypeBadge type={exercise.type} />
-                    {exercise.isGenerated && (
-                      <span className="inline-flex items-center gap-1 text-[11px] text-amber-600 dark:text-amber-400 font-medium">
-                        <Sparkles className="w-3 h-3" />
-                        Variante
+                <div className="space-y-2 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="font-mono text-[11px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                        Obj {exercise.pcepObjective}
                       </span>
-                    )}
+                      <DifficultyBadge difficulty={exercise.difficulty} />
+                      <ExerciseTypeBadge type={exercise.type} />
+                    </div>
+
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {isSolved && (
+                        <span className="flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                          <CheckCircle2 className="w-4 h-4" />
+                          <span className="text-[11px]">Completado</span>
+                        </span>
+                      )}
+                      {isFailed && !isSolved && (
+                        <span className="flex items-center gap-1 text-xs font-medium text-rose-600 dark:text-rose-400">
+                          <XCircle className="w-4 h-4" />
+                          <span className="text-[11px]">Fallado</span>
+                        </span>
+                      )}
+                      {isFav && (
+                        <Bookmark className="w-4 h-4 text-amber-500 fill-amber-500" />
+                      )}
+                    </div>
                   </div>
 
-                  <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 group-hover:text-petrol-600 dark:group-hover:text-petrol-400 transition truncate">
+                  {exercise.isGenerated && (
+                    <div className="flex items-center gap-1 text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+                      <Sparkles className="w-3 h-3" />
+                      <span>Variante</span>
+                    </div>
+                  )}
+
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 group-hover:text-petrol-600 dark:group-hover:text-petrol-400 transition line-clamp-2">
                     {exercise.title}
                   </h3>
 
-                  <p className="text-xs text-slate-500 truncate">{exercise.statement}</p>
-                </div>
-
-                <div className="flex items-center gap-3 shrink-0">
-                  {isSolved && (
-                    <span className="flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span className="hidden sm:inline">Completado</span>
-                    </span>
-                  )}
-                  {isFailed && !isSolved && (
-                    <span className="flex items-center gap-1 text-xs font-medium text-rose-600 dark:text-rose-400">
-                      <XCircle className="w-4 h-4" />
-                      <span className="hidden sm:inline">Fallado</span>
-                    </span>
-                  )}
-                  {isFav && (
-                    <Bookmark className="w-4 h-4 text-amber-500 fill-amber-500" />
-                  )}
+                  <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                    {exercise.statement}
+                  </p>
                 </div>
               </div>
             );
-          })
-        )}
-      </div>
+          })}
+        </div>
+      )}
     </div>
   );
 };
