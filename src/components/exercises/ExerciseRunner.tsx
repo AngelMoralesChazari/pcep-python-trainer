@@ -8,6 +8,7 @@ import { DifficultyBadge, ExerciseTypeBadge } from '../common/Badge';
 import { PythonCodeEditor } from '../editor/PythonCodeEditor';
 import { pythonExecutor, ExecutionResult } from '../../services/pythonExecutor';
 import { useProgress } from '../../context/ProgressContext';
+import { PythonCodeBlock, TheoryMarkdownRenderer } from '../theory/TheoryMarkdownRenderer';
 
 interface ExerciseRunnerProps {
   exercise: Exercise;
@@ -144,15 +145,24 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({ exercise, onNext
         </button>
       </div>
 
-      {/* Enunciado */}
+      {/* Enunciado con resaltado para código en línea */}
       <div className="text-slate-800 dark:text-slate-200 text-base leading-relaxed font-normal">
-        {exercise.statement}
+        <TheoryMarkdownRenderer content={exercise.statement} />
       </div>
 
-      {/* Fragmento de código relevante (para predicción o análisis) */}
+      {/* Fragmento de código relevante (para predicción o análisis) con resaltado sintáctico completo */}
       {exercise.codeSnippet && (
-        <div className="rounded-xl overflow-hidden border border-slate-800 bg-slate-950 font-mono text-sm p-4 text-slate-100 shadow-inner">
-          <pre className="whitespace-pre-wrap">{exercise.codeSnippet}</pre>
+        <div className="rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-inner">
+          <div className="flex items-center justify-between px-4 py-2 border-b border-slate-800/80 bg-slate-900/60 text-[11px] text-slate-400 font-mono">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+              <span>Python 3</span>
+            </span>
+            <span className="text-slate-500 text-[10px]">Código a analizar</span>
+          </div>
+          <div className="p-4 font-mono text-sm overflow-x-auto">
+            <PythonCodeBlock code={exercise.codeSnippet} className="text-sm" />
+          </div>
         </div>
       )}
 
@@ -239,8 +249,16 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({ exercise, onNext
       {exercise.type === 'code_completion' && (
         <div className="space-y-3">
           {exercise.starterCode && (
-            <div className="rounded-xl overflow-hidden border border-slate-800 bg-slate-950 font-mono text-sm p-4 text-slate-100">
-              <pre className="whitespace-pre-wrap">{exercise.starterCode}</pre>
+            <div className="rounded-xl overflow-hidden border border-slate-800 bg-slate-950 shadow-inner">
+              <div className="flex items-center justify-between px-4 py-2 border-b border-slate-800/80 bg-slate-900/60 text-[11px] text-slate-400 font-mono">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+                  <span>Python 3 &bull; Completar</span>
+                </span>
+              </div>
+              <div className="p-4 font-mono text-sm overflow-x-auto">
+                <PythonCodeBlock code={exercise.starterCode} className="text-sm" />
+              </div>
             </div>
           )}
 
@@ -344,9 +362,13 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({ exercise, onNext
           </div>
 
           {showSolution && (exercise.solutionCode || exercise.expectedOutput) && (
-            <div className="bg-slate-900 text-slate-100 p-3 rounded-lg font-mono text-xs border border-slate-800">
-              <div className="text-slate-400 mb-1 text-[11px] font-sans">Solución de referencia:</div>
-              <pre className="whitespace-pre-wrap">{exercise.solutionCode || exercise.expectedOutput}</pre>
+            <div className="bg-slate-900 text-slate-100 p-4 rounded-xl font-mono text-xs border border-slate-800 space-y-2">
+              <div className="text-slate-400 text-[11px] font-sans font-medium">Solución de referencia:</div>
+              {exercise.solutionCode ? (
+                <PythonCodeBlock code={exercise.solutionCode} className="text-xs" />
+              ) : (
+                <pre className="whitespace-pre-wrap text-emerald-300 font-mono text-xs">{exercise.expectedOutput}</pre>
+              )}
             </div>
           )}
 

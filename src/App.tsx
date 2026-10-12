@@ -28,11 +28,11 @@ const VALID_TABS = [
 ];
 
 const getTabFromLocation = (): string => {
-  const hash = window.location.hash.replace(/^#\/?/, '').toLowerCase();
+  const hash = window.location.hash.replace(/^#\/?/, '').split('?')[0].toLowerCase();
   if (VALID_TABS.includes(hash)) {
     return hash;
   }
-  const path = window.location.pathname.replace(/^\//, '').toLowerCase();
+  const path = window.location.pathname.replace(/^\//, '').split('?')[0].toLowerCase();
   if (VALID_TABS.includes(path)) {
     return path;
   }
