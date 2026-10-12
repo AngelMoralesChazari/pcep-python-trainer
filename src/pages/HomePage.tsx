@@ -13,8 +13,8 @@ export const HomePage: React.FC<HomePageProps> = ({ onStart, onLogin }) => {
 
   return (
     <div className="relative min-h-[calc(100vh-5rem)] overflow-hidden">
-      {/* Fondo de Estrellas animadas exclusivo en Tema Oscuro */}
-      <div className="hidden dark:block fixed inset-0 pointer-events-none select-none z-0 overflow-hidden">
+      {/* Fondo de Estrellas y Constelaciones animadas en Tema Claro y Oscuro */}
+      <div className="fixed inset-0 pointer-events-none select-none z-0 overflow-hidden">
         <div className="stars-container">
           <div id="stars" />
           <div id="stars2" />
@@ -24,9 +24,9 @@ export const HomePage: React.FC<HomePageProps> = ({ onStart, onLogin }) => {
 
       {/* Marca de agua / Logo de Python ambiental de fondo con animación flotante */}
       <div className="pointer-events-none select-none fixed inset-0 flex items-center justify-center overflow-hidden z-0">
-        <div className="relative w-72 h-72 sm:w-[440px] sm:h-[440px] lg:w-[520px] lg:h-[520px] opacity-[0.04] dark:opacity-[0.14] animate-float transition-opacity duration-700">
-          {/* Resplandor cósmico difuso en tema oscuro */}
-          <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-petrol-500/25 via-sky-500/20 to-blue-600/25 blur-3xl dark:opacity-90" />
+        <div className="relative w-72 h-72 sm:w-[440px] sm:h-[440px] lg:w-[520px] lg:h-[520px] opacity-[0.08] dark:opacity-[0.14] animate-float transition-opacity duration-700">
+          {/* Resplandor cósmico difuso adaptado para ambos temas */}
+          <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-petrol-400/20 via-sky-400/20 to-blue-500/20 blur-3xl opacity-75 dark:opacity-90 dark:from-petrol-500/25 dark:via-sky-500/20 dark:to-blue-600/25" />
           <img
             src={pythonLogo}
             alt="Python Ambient Logo"
@@ -89,7 +89,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onStart, onLogin }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
           <div
             onClick={onStart}
-            className="p-6 rounded-2xl bg-white dark:bg-slate-900/80 dark:backdrop-blur-md border border-slate-200 dark:border-slate-800/80 space-y-2 shadow-sm hover:border-petrol-400 dark:hover:border-petrol-500 dark:hover:bg-slate-900/95 hover:shadow-md transition cursor-pointer group"
+            className="p-6 rounded-2xl bg-white/85 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/90 dark:border-slate-800/80 space-y-2 shadow-sm hover:border-petrol-400 dark:hover:border-petrol-500 hover:bg-white/95 dark:hover:bg-slate-900/95 hover:shadow-md transition cursor-pointer group"
           >
             <div className="flex justify-between items-center text-xs">
               <span className="font-mono font-bold text-petrol-600 dark:text-petrol-400 group-hover:underline">Sección 1</span>
@@ -105,7 +105,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onStart, onLogin }) => {
 
           <div
             onClick={onStart}
-            className="p-6 rounded-2xl bg-white dark:bg-slate-900/80 dark:backdrop-blur-md border border-slate-200 dark:border-slate-800/80 space-y-2 shadow-sm hover:border-petrol-400 dark:hover:border-petrol-500 dark:hover:bg-slate-900/95 hover:shadow-md transition cursor-pointer group"
+            className="p-6 rounded-2xl bg-white/85 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/90 dark:border-slate-800/80 space-y-2 shadow-sm hover:border-petrol-400 dark:hover:border-petrol-500 hover:bg-white/95 dark:hover:bg-slate-900/95 hover:shadow-md transition cursor-pointer group"
           >
             <div className="flex justify-between items-center text-xs">
               <span className="font-mono font-bold text-petrol-600 dark:text-petrol-400 group-hover:underline">Sección 2</span>
@@ -121,7 +121,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onStart, onLogin }) => {
 
           <div
             onClick={onStart}
-            className="p-6 rounded-2xl bg-white dark:bg-slate-900/80 dark:backdrop-blur-md border border-slate-200 dark:border-slate-800/80 space-y-2 shadow-sm hover:border-petrol-400 dark:hover:border-petrol-500 dark:hover:bg-slate-900/95 hover:shadow-md transition cursor-pointer group"
+            className="p-6 rounded-2xl bg-white/85 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/90 dark:border-slate-800/80 space-y-2 shadow-sm hover:border-petrol-400 dark:hover:border-petrol-500 hover:bg-white/95 dark:hover:bg-slate-900/95 hover:shadow-md transition cursor-pointer group"
           >
             <div className="flex justify-between items-center text-xs">
               <span className="font-mono font-bold text-petrol-600 dark:text-petrol-400 group-hover:underline">Sección 3</span>
@@ -137,7 +137,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onStart, onLogin }) => {
 
           <div
             onClick={onStart}
-            className="p-6 rounded-2xl bg-white dark:bg-slate-900/80 dark:backdrop-blur-md border border-slate-200 dark:border-slate-800/80 space-y-2 shadow-sm hover:border-petrol-400 dark:hover:border-petrol-500 dark:hover:bg-slate-900/95 hover:shadow-md transition cursor-pointer group"
+            className="p-6 rounded-2xl bg-white/85 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/90 dark:border-slate-800/80 space-y-2 shadow-sm hover:border-petrol-400 dark:hover:border-petrol-500 hover:bg-white/95 dark:hover:bg-slate-900/95 hover:shadow-md transition cursor-pointer group"
           >
             <div className="flex justify-between items-center text-xs">
               <span className="font-mono font-bold text-petrol-600 dark:text-petrol-400 group-hover:underline">Sección 4</span>
