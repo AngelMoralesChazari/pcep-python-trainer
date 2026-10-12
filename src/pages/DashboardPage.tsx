@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   Flame, CheckCircle, Target, Clock, ArrowRight,
-  AlertTriangle, BookOpen, Sparkles, Trophy
+  AlertTriangle, BookOpen, Sparkles, Trophy, PauseCircle
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useProgress } from '../context/ProgressContext';
@@ -121,16 +121,35 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate, onSele
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5">
         {/* Racha */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-md transition flex items-center gap-4">
-          <div className="w-13 h-13 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 flex items-center justify-center shrink-0">
-            <Flame className="w-6 h-6 fill-amber-500" />
+          <div className={`w-13 h-13 rounded-2xl flex items-center justify-center shrink-0 ${
+            user?.stats?.streakStatus === 'paused'
+              ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-600'
+              : user?.stats?.isTodayStreakConfirmed
+                ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-600'
+                : 'bg-amber-50/60 dark:bg-amber-950/20 text-amber-500'
+          }`}>
+            {user?.stats?.streakStatus === 'paused' ? (
+              <PauseCircle className="w-6 h-6 text-amber-600" />
+            ) : (
+              <Flame className={`w-6 h-6 ${user?.stats?.isTodayStreakConfirmed ? 'fill-amber-500' : ''}`} />
+            )}
           </div>
           <div className="min-w-0">
             <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">Racha Actual</div>
-            <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 font-mono tracking-tight">
-              {user ? `${user.stats.currentStreakDays} días` : '0 días'}
+            <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 font-mono tracking-tight flex items-center gap-2">
+              <span>{user ? `${user.stats.currentStreakDays} ${user.stats.currentStreakDays === 1 ? 'día' : 'días'}` : '0 días'}</span>
+              {user?.stats?.streakStatus === 'paused' && (
+                <span className="text-[11px] font-sans font-semibold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300">
+                  En Pausa
+                </span>
+              )}
             </div>
             <div className="text-[11px] text-slate-400 truncate">
-              {user ? 'Constancia diaria' : 'Inicia sesión'}
+              {!user
+                ? 'Inicia sesión'
+                : user.stats?.streakStatus === 'paused'
+                  ? 'Racha en pausa'
+                  : 'Constancia diaria'}
             </div>
           </div>
         </div>
