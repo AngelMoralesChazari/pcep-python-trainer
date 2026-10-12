@@ -24,13 +24,13 @@ export const HomePage: React.FC<HomePageProps> = ({ onStart, onLogin }) => {
 
       {/* Marca de agua / Logo de Python ambiental de fondo con animación flotante */}
       <div className="pointer-events-none select-none fixed inset-0 flex items-center justify-center overflow-hidden z-0">
-        <div className="relative w-72 h-72 sm:w-[440px] sm:h-[440px] lg:w-[520px] lg:h-[520px] opacity-[0.08] dark:opacity-[0.14] animate-float transition-opacity duration-700">
+        <div className="relative w-72 h-72 sm:w-[440px] sm:h-[440px] lg:w-[520px] lg:h-[520px] opacity-[0.18] dark:opacity-[0.14] animate-float transition-opacity duration-700">
           {/* Resplandor cósmico difuso adaptado para ambos temas */}
-          <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-petrol-400/20 via-sky-400/20 to-blue-500/20 blur-3xl opacity-75 dark:opacity-90 dark:from-petrol-500/25 dark:via-sky-500/20 dark:to-blue-600/25" />
+          <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-petrol-400/35 via-sky-400/30 to-blue-500/35 blur-3xl opacity-85 dark:opacity-90 dark:from-petrol-500/25 dark:via-sky-500/20 dark:to-blue-600/25" />
           <img
             src={pythonLogo}
             alt="Python Ambient Logo"
-            className="w-full h-full object-contain filter drop-shadow-[0_0_35px_rgba(45,212,191,0.2)] dark:drop-shadow-[0_0_65px_rgba(56,189,248,0.35)]"
+            className="w-full h-full object-contain filter drop-shadow-[0_0_40px_rgba(2,132,199,0.35)] dark:drop-shadow-[0_0_65px_rgba(56,189,248,0.35)]"
           />
         </div>
       </div>
