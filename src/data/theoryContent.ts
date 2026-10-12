@@ -409,7 +409,7 @@ print("El número más grande es:", larger_number)`,
         description: 'La estructura if-else evalúa la expresión booleana y ejecuta solo una de las dos ramas.'
       },
       {
-        title: 'Ejemplo 2: Instrucción en una sola línea (Single-line if / Cisco Style)',
+        title: 'Ejemplo 2: Instrucción en una sola línea (Single-line if)',
         code: `# Se leen dos números:
 number1 = int(input("Ingresa el primer número: "))
 number2 = int(input("Ingresa el segundo número: "))
@@ -420,8 +420,8 @@ else: larger_number = number2
 
 print("El número más grande es:", larger_number)
 
-# Nota Cisco: Este estilo compacto es perfectamente legal en Python,
-# pero según PEP-8 debe usarse con prudencia para no comprometer la legibilidad.`,
+# Nota: Este estilo compacto es perfectamente legal en Python,
+# pero según PEP-8 se recomienda usar bloques indentados para mayor claridad.`,
         description: 'Cuando el cuerpo del condicional tiene solo una sentencia, Python permite escribirla en el mismo renglón tras los dos puntos.'
       },
       {
