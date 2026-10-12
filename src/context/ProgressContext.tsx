@@ -57,13 +57,25 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const { user, updateUserStats } = useAuth();
 
   const [exercises, setExercises] = useState<Exercise[]>(() => {
+    const BANK_VERSION = 'v2_400_seed';
+    const currentVersion = localStorage.getItem('pcep_bank_version');
     const saved = localStorage.getItem('pcep_exercises_bank');
-    if (saved) {
-      try { return JSON.parse(saved); } catch {}
+
+    if (saved && currentVersion === BANK_VERSION) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length >= SEED_EXERCISES.length) {
+          return parsed;
+        }
+      } catch {}
     }
-    // Añadimos ejercicios semilla iniciales + variantes paramétricas de inicio
+
+    // Inicializamos o actualizamos con los 400 ejercicios base + variantes
+    localStorage.setItem('pcep_bank_version', BANK_VERSION);
     const initialVariants = ExerciseGenerator.generateBatch(5);
-    return [...SEED_EXERCISES, ...initialVariants];
+    const initialBank = [...SEED_EXERCISES, ...initialVariants];
+    localStorage.setItem('pcep_exercises_bank', JSON.stringify(initialBank));
+    return initialBank;
   });
 
   const [progress, setProgress] = useState<StudentProgress>(() => {
