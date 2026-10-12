@@ -240,7 +240,7 @@ export const PracticePage: React.FC<PracticePageProps> = ({
           <span className="text-xs font-mono font-semibold text-petrol-600 dark:text-petrol-400 uppercase tracking-wider">
             Banco Interactivo Oficial
           </span>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Practicar Ejercicios PCEP</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Ejercicios de Programación</h1>
           <p className="text-xs text-slate-500 mt-0.5">
             Ejercicios graduados por temática y dificultad.
           </p>

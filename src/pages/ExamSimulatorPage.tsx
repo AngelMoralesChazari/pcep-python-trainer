@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Clock, Flag, CheckCircle2, XCircle,
   Award, RotateCcw, ChevronLeft, ChevronRight, ShieldAlert
@@ -7,6 +7,59 @@ import { useProgress } from '../context/ProgressContext';
 import { Exercise, PCEPObjectiveCode } from '../types';
 import { ProgressBar } from '../components/common/ProgressBar';
 import { DifficultyBadge } from '../components/common/Badge';
+import { PythonCodeBlock, TheoryMarkdownRenderer } from '../components/theory/TheoryMarkdownRenderer';
+
+// Configuración Oficial PCEP-30-02: 40 minutos para exactamente 30 preguntas
+const EXAM_DURATION_MINUTES = 40;
+const EXAM_DURATION_SECONDS = EXAM_DURATION_MINUTES * 60;
+
+// Distribución oficial ponderada de 30 preguntas:
+// Sec 1 (18%): 5 preguntas
+// Sec 2 (29%): 9 preguntas
+// Sec 3 (25%): 8 preguntas
+// Sec 4 (28%): 8 preguntas
+const SECTION_QUOTAS: Record<number, number> = {
+  1: 5,
+  2: 9,
+  3: 8,
+  4: 8,
+};
+
+// Algoritmo Fisher-Yates para mezcla aleatoria sin sesgo
+function shuffleArray<T>(array: T[]): T[] {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+// Selector aleatorio que rota preguntas entre intentos continuos
+function selectExamQuestions(allExercises: Exercise[], recentIds: Set<string>): Exercise[] {
+  const selected: Exercise[] = [];
+
+  for (const [sectionStr, count] of Object.entries(SECTION_QUOTAS)) {
+    const secNum = Number(sectionStr);
+    const pool = allExercises.filter(e => e.section === secNum);
+
+    // Separamos en preguntas no usadas en el intento previo y preguntas usadas
+    const unrecent = pool.filter(e => !recentIds.has(e.id));
+    const recent = pool.filter(e => recentIds.has(e.id));
+
+    // Mezclamos ambos subconjuntos
+    const shuffledUnrecent = shuffleArray(unrecent);
+    const shuffledRecent = shuffleArray(recent);
+
+    // Priorizamos preguntas frescas para garantizar que cambien en cada intento,
+    // usando las anteriores solo como respaldo si el banco fuera menor a la cuota
+    const combined = [...shuffledUnrecent, ...shuffledRecent];
+    selected.push(...combined.slice(0, count));
+  }
+
+  // Mezclar el orden general de las 30 preguntas para simular el examen real
+  return shuffleArray(selected);
+}
 
 export const ExamSimulatorPage: React.FC = () => {
   const { exercises, recordExamAttempt } = useProgress();
@@ -16,40 +69,17 @@ export const ExamSimulatorPage: React.FC = () => {
   const [examFinished, setExamFinished] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Temporizador de 45 minutos (2700 segundos)
-  const [timeLeftSeconds, setTimeLeftSeconds] = useState(45 * 60);
+  // Preguntas seleccionadas para el intento actual
+  const [examQuestions, setExamQuestions] = useState<Exercise[]>([]);
+  // IDs de preguntas usadas en el intento previo para rotarlas
+  const [lastQuestionIds, setLastQuestionIds] = useState<Set<string>>(new Set());
+
+  // Temporizador de 40 minutos (2400 segundos)
+  const [timeLeftSeconds, setTimeLeftSeconds] = useState(EXAM_DURATION_SECONDS);
 
   // Respuestas y marcas para revisión
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [flaggedQuestions, setFlaggedQuestions] = useState<Set<number>>(new Set());
-
-  // Generar conjunto de preguntas respetando la distribución oficial:
-  // 30 preguntas totales:
-  // Sec 1 (18%): 5 preguntas
-  // Sec 2 (29%): 9 preguntas
-  // Sec 3 (25%): 8 preguntas
-  // Sec 4 (28%): 8 preguntas
-  const examQuestions = useMemo<Exercise[]>(() => {
-    const s1 = exercises.filter(e => e.section === 1);
-    const s2 = exercises.filter(e => e.section === 2);
-    const s3 = exercises.filter(e => e.section === 3);
-    const s4 = exercises.filter(e => e.section === 4);
-
-    const pick = (list: Exercise[], count: number) => {
-      const shuffled = [...list].sort(() => 0.5 - Math.random());
-      return shuffled.slice(0, count);
-    };
-
-    const selected = [
-      ...pick(s1, 5),
-      ...pick(s2, 9),
-      ...pick(s3, 8),
-      ...pick(s4, 8)
-    ];
-
-    // Mezclar el orden global de presentación
-    return selected.sort(() => 0.5 - Math.random());
-  }, [exercises, examStarted]);
 
   // Manejo del temporizador
   useEffect(() => {
@@ -78,9 +108,14 @@ export const ExamSimulatorPage: React.FC = () => {
   const currentExercise = examQuestions[currentIndex] || null;
 
   const handleStartExam = () => {
+    // Generar un nuevo set de 30 preguntas aleatorias rotando las del intento anterior
+    const freshQuestions = selectExamQuestions(exercises, lastQuestionIds);
+    setExamQuestions(freshQuestions);
+    setLastQuestionIds(new Set(freshQuestions.map(q => q.id)));
+
     setAnswers({});
     setFlaggedQuestions(new Set());
-    setTimeLeftSeconds(45 * 60);
+    setTimeLeftSeconds(EXAM_DURATION_SECONDS);
     setCurrentIndex(0);
     setExamFinished(false);
     setExamStarted(true);
@@ -150,7 +185,7 @@ export const ExamSimulatorPage: React.FC = () => {
     );
 
     recordExamAttempt({
-      durationSeconds: (45 * 60) - timeLeftSeconds,
+      durationSeconds: EXAM_DURATION_SECONDS - timeLeftSeconds,
       totalQuestions: examQuestions.length,
       scorePercentage: overall,
       passed: overall >= 70,
@@ -184,7 +219,7 @@ export const ExamSimulatorPage: React.FC = () => {
 
           <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
             Este simulacro replica fielmente las condiciones reales del examen <strong>Certified Entry-Level Python Programmer</strong>:
-            duración cronometrada, distribución ponderada por sección y ausencia de retroalimentación en tiempo real hasta concluir la prueba.
+            duración cronometrada de <strong>40 minutos</strong>, <strong>30 preguntas</strong> ponderadas por sección y ausencia de retroalimentación en tiempo real hasta concluir la prueba.
           </p>
 
           {/* Tabla de Ponderación Oficial */}
@@ -192,7 +227,7 @@ export const ExamSimulatorPage: React.FC = () => {
             <div className="grid grid-cols-3 bg-slate-50 dark:bg-slate-950/70 p-3 font-semibold text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800">
               <div>Sección Temática</div>
               <div className="text-center">Peso Examen</div>
-              <div className="text-right">Preguntas Estimadas</div>
+              <div className="text-right">Preguntas por Examen</div>
             </div>
             <div className="divide-y divide-slate-100 dark:divide-slate-800/80">
               <div className="grid grid-cols-3 p-3 text-slate-600 dark:text-slate-400">
@@ -224,8 +259,9 @@ export const ExamSimulatorPage: React.FC = () => {
               <span>Reglas del Simulador:</span>
             </div>
             <ul className="list-disc pl-5 space-y-1">
-              <li>Tiempo límite: <strong>45 minutos</strong>. El examen se entregará automáticamente si el tiempo expira.</li>
+              <li>Tiempo límite: <strong>40 minutos</strong> para <strong>30 preguntas</strong>. El examen se entregará automáticamente si el tiempo expira.</li>
               <li>Puntuación mínima de aprobación: <strong>70%</strong>.</li>
+              <li>Rotación dinámica: En cada intento las preguntas cambian aleatoriamente tomando reactivos de las 4 secciones temáticas.</li>
               <li>No se muestran explicaciones ni soluciones durante la prueba.</li>
               <li>Puedes marcar preguntas con el botón de banderín para revisarlas antes de finalizar.</li>
             </ul>
@@ -351,10 +387,19 @@ export const ExamSimulatorPage: React.FC = () => {
           <div className="pt-4 flex flex-col sm:flex-row gap-3">
             <button
               onClick={handleStartExam}
-              className="flex-1 py-3 bg-petrol-600 hover:bg-petrol-700 text-white rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2"
+              className="flex-1 py-3 bg-petrol-600 hover:bg-petrol-700 text-white rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2 cursor-pointer shadow-sm"
             >
               <RotateCcw className="w-4 h-4" />
-              <span>Realizar Nuevo Simulacro</span>
+              <span>Realizar Nuevo Simulacro (30 Nuevas Preguntas)</span>
+            </button>
+            <button
+              onClick={() => {
+                setExamStarted(false);
+                setExamFinished(false);
+              }}
+              className="py-3 px-6 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl text-sm font-medium transition cursor-pointer"
+            >
+              <span>Volver a Instrucciones</span>
             </button>
           </div>
         </div>
@@ -421,12 +466,28 @@ export const ExamSimulatorPage: React.FC = () => {
               </div>
 
               <div className="text-slate-900 dark:text-slate-100 text-base leading-relaxed font-normal">
-                {currentExercise.statement}
+                <TheoryMarkdownRenderer content={currentExercise.statement} />
               </div>
 
               {currentExercise.codeSnippet && (
-                <div className="rounded-xl overflow-hidden border border-slate-800 bg-slate-950 font-mono text-sm p-4 text-slate-100">
-                  <pre className="whitespace-pre-wrap">{currentExercise.codeSnippet}</pre>
+                <div className="my-4 rounded-2xl overflow-hidden border border-slate-700/80 bg-slate-950 shadow-md">
+                  <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-800 bg-slate-900/80 text-xs font-mono">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-rose-500/90 inline-block"></span>
+                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500/90 inline-block"></span>
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/90 inline-block"></span>
+                      <span className="ml-1.5 font-semibold text-slate-300 text-xs">Python 3</span>
+                    </div>
+                    <span className="text-slate-400 text-xs font-sans">Código a examinar</span>
+                  </div>
+                  <div className="p-5 sm:p-6 flex justify-center bg-slate-950 overflow-x-auto">
+                    <div className="inline-block text-left min-w-[260px] max-w-full">
+                      <PythonCodeBlock
+                        code={currentExercise.codeSnippet}
+                        className="text-base sm:text-lg leading-relaxed font-mono"
+                      />
+                    </div>
+                  </div>
                 </div>
               )}
 
