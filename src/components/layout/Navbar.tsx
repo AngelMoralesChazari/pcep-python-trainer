@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   Code2, BookOpen, CheckSquare, Flame, Trophy,
   FileCheck2, BarChart2, History, Users, Sun, Moon, Menu, X, User,
-  LogOut, ChevronDown, Shield, LogIn
+  LogOut, ChevronDown, Shield, LogIn, PauseCircle
 } from 'lucide-react';
 import { useAuth, ADMIN_EMAIL } from '../../context/AuthContext';
 
@@ -117,12 +117,30 @@ export const Navbar: React.FC<NavbarProps> = ({ currentTab, onSelectTab, isDark,
           {/* Acciones y Perfil */}
           <div className="flex items-center gap-2.5">
             {/* Racha */}
-            {user && (
-              <div className="hidden sm:flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 text-amber-700 dark:text-amber-300 text-xs font-semibold">
-                <Flame className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                <span>{user.stats?.currentStreakDays ?? 7} días</span>
-              </div>
-            )}
+            {user && (() => {
+              const streak = user.stats?.currentStreakDays ?? 0;
+              const isPaused = user.stats?.streakStatus === 'paused';
+              const isConfirmed = user.stats?.isTodayStreakConfirmed;
+
+              if (isPaused) {
+                return (
+                  <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/60 text-amber-700 dark:text-amber-300 text-xs font-semibold">
+                    <PauseCircle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                    <span>{streak} {streak === 1 ? 'día' : 'días'}</span>
+                    <span className="text-[10px] font-normal text-amber-600 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/60 px-1 rounded">
+                      En Pausa
+                    </span>
+                  </div>
+                );
+              }
+
+              return (
+                <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 text-amber-700 dark:text-amber-300 text-xs font-semibold">
+                  <Flame className={`w-3.5 h-3.5 shrink-0 ${isConfirmed ? 'fill-amber-500 text-amber-500' : 'text-amber-500'}`} />
+                  <span>{streak} {streak === 1 ? 'día' : 'días'}</span>
+                </div>
+              );
+            })()}
 
             {/* Menú de Usuario con Cerrar Sesión */}
             {user ? (
