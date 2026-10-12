@@ -148,8 +148,8 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className={`min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col transition-colors duration-200 ${
-      currentTab === 'home' ? 'h-screen overflow-hidden' : ''
+    <div className={`bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col transition-colors duration-200 ${
+      currentTab === 'home' || currentTab === 'study' ? 'h-screen overflow-hidden' : 'min-h-screen'
     }`}>
       <Navbar
         currentTab={currentTab}
@@ -158,7 +158,7 @@ const AppContent: React.FC = () => {
         onToggleTheme={handleToggleTheme}
       />
 
-      <main className={`flex-1 ${currentTab === 'home' ? 'overflow-hidden' : 'pb-16'}`}>
+      <main className={`flex-1 min-h-0 ${currentTab === 'home' || currentTab === 'study' ? 'overflow-hidden flex flex-col' : 'pb-16'}`}>
         {currentTab === 'home' && (
           <HomePage
             onStart={() => handleNavigate('dashboard')}
@@ -212,7 +212,7 @@ const AppContent: React.FC = () => {
         )}
       </main>
 
-      {currentTab !== 'home' && (
+      {currentTab !== 'home' && currentTab !== 'study' && (
         <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-6 text-center text-xs text-slate-500">
           <div className="w-[95%] max-w-[1680px] mx-auto px-2 sm:px-4 lg:px-6 flex flex-col sm:flex-row items-center justify-between gap-2">
             <span>&copy; {new Date().getFullYear()} PCEP Trainer &bull; Preparación Python Certificada PCEP-30-02</span>
