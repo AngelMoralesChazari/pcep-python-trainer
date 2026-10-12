@@ -51,6 +51,7 @@ export interface UserStats {
   weakTopics?: string[];
   streakStatus?: 'active' | 'paused' | 'pending';
   lastConfirmedStreakDate?: string;
+  streakAwardedDate?: string;
   todayConnectedSeconds?: number;
   isTodayStreakConfirmed?: boolean;
 }
