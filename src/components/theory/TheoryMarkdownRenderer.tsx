@@ -28,6 +28,7 @@ type TokenType =
   | 'builtin'
   | 'exception'
   | 'method'
+  | 'comment'
   | 'string'
   | 'number'
   | 'operator'
@@ -39,9 +40,9 @@ interface Token {
   text: string;
 }
 
-// Tokenizador sintáctico para fragmentos de código Python
-function tokenizePythonCode(code: string): Token[] {
-  const tokenRegex = /(\x27[^\x27]*\x27|\x22[^\x22]*\x22|\b0[bB][01]+\b|\b0[oO][0-7]+\b|\b0[xX][0-9a-fA-F]+\b|\b\d+(?:\.\d+)?(?:e[+-]?\d+)?\b|\.[a-zA-Z_]\w*|\b[a-zA-Z_]\w*\b|\/\/|\*\*|==|!=|<=|>=|->|[{}()[\]:,=+\-*/%~<>])/g;
+// Tokenizador sintáctico para fragmentos y bloques de código Python
+export function tokenizePythonCode(code: string): Token[] {
+  const tokenRegex = /(#[^\n]*|"""[\s\S]*?"""|\x27\x27\x27[\s\S]*?\x27\x27\x27|"[^"\n]*"|\x27[^\x27\n]*\x27|\b0[bB][01]+\b|\b0[oO][0-7]+\b|\b0[xX][0-9a-fA-F]+\b|\b\d+(?:\.\d+)?(?:e[+-]?\d+)?\b|\.[a-zA-Z_]\w*|\b[a-zA-Z_]\w*\b|\/\/|\*\*|==|!=|<=|>=|->|\+=|-=|\*=|\/=|%=|[{}()[\]:,=+\-*/%~<>])/g;
 
   let lastIndex = 0;
   const parts: Token[] = [];
@@ -52,7 +53,11 @@ function tokenizePythonCode(code: string): Token[] {
       parts.push({ type: 'plain', text: code.slice(lastIndex, m.index) });
     }
     const token = m[0];
-    if (token.startsWith("'") || token.startsWith('"')) {
+    if (token.startsWith('#')) {
+      parts.push({ type: 'comment', text: token });
+    } else if (token.startsWith('"""') || token.startsWith("'''")) {
+      parts.push({ type: 'string', text: token });
+    } else if (token.startsWith("'") || token.startsWith('"')) {
       parts.push({ type: 'string', text: token });
     } else if (token.startsWith('.')) {
       parts.push({ type: 'method', text: token });
@@ -66,7 +71,7 @@ function tokenizePythonCode(code: string): Token[] {
       parts.push({ type: 'builtin', text: token });
     } else if (/^(0[bBoOxX]|\d)/.test(token)) {
       parts.push({ type: 'number', text: token });
-    } else if (/^(\/\/|\*\*|==|!=|<=|>=|\+|\-|\*|\/|%|<|>|=|~)$/.test(token)) {
+    } else if (/^(\/\/|\*\*|==|!=|<=|>=|->|\+=|-=|\*=|\/=|%=|\+|\-|\*|\/|%|<|>|=|~)$/.test(token)) {
       parts.push({ type: 'operator', text: token });
     } else {
       parts.push({ type: 'identifier', text: token });
@@ -91,6 +96,8 @@ function getTokenClass(type: TokenType): string {
       return 'text-teal-600 dark:text-teal-400 font-semibold';
     case 'exception':
       return 'text-rose-600 dark:text-rose-400 font-bold';
+    case 'comment':
+      return 'text-slate-500 dark:text-slate-400 italic';
     case 'method':
       return 'text-sky-600 dark:text-sky-400 font-semibold';
     case 'string':
@@ -106,7 +113,7 @@ function getTokenClass(type: TokenType): string {
   }
 }
 
-// Chip de código con resaltado sintáctico integrado
+// Chip de código en línea con resaltado sintáctico integrado
 export const CodeChip: React.FC<{ code: string }> = ({ code }) => {
   const tokens = tokenizePythonCode(code);
   return (
@@ -117,6 +124,63 @@ export const CodeChip: React.FC<{ code: string }> = ({ code }) => {
         </span>
       ))}
     </code>
+  );
+};
+
+// Bloque multilínea de código Python con coloreado de sintaxis de alto contraste
+export const PythonCodeBlock: React.FC<{ code: string; className?: string }> = ({
+  code,
+  className = '',
+}) => {
+  const tokens = tokenizePythonCode(code);
+  return (
+    <pre className={`font-mono text-xs overflow-x-auto leading-relaxed select-text ${className}`}>
+      <code>
+        {tokens.map((tok, i) => {
+          let colorClass = 'text-slate-100';
+          switch (tok.type) {
+            case 'keyword':
+              colorClass = 'text-purple-400 font-bold';
+              break;
+            case 'constant':
+              colorClass = 'text-amber-400 font-bold';
+              break;
+            case 'builtin':
+              colorClass = 'text-teal-400 font-semibold';
+              break;
+            case 'exception':
+              colorClass = 'text-rose-400 font-bold';
+              break;
+            case 'comment':
+              colorClass = 'text-slate-400 italic';
+              break;
+            case 'string':
+              colorClass = 'text-emerald-400 font-normal';
+              break;
+            case 'method':
+              colorClass = 'text-sky-300 font-medium';
+              break;
+            case 'number':
+              colorClass = 'text-sky-400 font-normal';
+              break;
+            case 'operator':
+              colorClass = 'text-amber-300 font-semibold';
+              break;
+            case 'identifier':
+              colorClass = 'text-slate-100';
+              break;
+            default:
+              colorClass = 'text-slate-200';
+              break;
+          }
+          return (
+            <span key={i} className={colorClass}>
+              {tok.text}
+            </span>
+          );
+        })}
+      </code>
+    </pre>
   );
 };
 
