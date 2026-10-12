@@ -14,17 +14,48 @@ import { HistoryPage } from './pages/HistoryPage';
 import { TeacherDashboardPage } from './pages/TeacherDashboardPage';
 import { PCEPObjectiveCode } from './types/pcep';
 
+const VALID_TABS = [
+  'home',
+  'dashboard',
+  'study',
+  'practice',
+  'challenges',
+  'exams',
+  'progress',
+  'history',
+  'teacher',
+  'login',
+];
+
+const getTabFromLocation = (): string => {
+  const hash = window.location.hash.replace(/^#\/?/, '').toLowerCase();
+  if (VALID_TABS.includes(hash)) {
+    return hash;
+  }
+  const path = window.location.pathname.replace(/^\//, '').toLowerCase();
+  if (VALID_TABS.includes(path)) {
+    return path;
+  }
+  return '';
+};
+
 const AppContent: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<string>(() => {
-    // Si no hay usuario activo, la vista inicial es siempre 'home'
+    const fromUrl = getTabFromLocation();
+    if (fromUrl) return fromUrl;
+
     const savedUser = localStorage.getItem('pcep_active_user');
     if (!savedUser) return 'home';
+
     const savedTab = sessionStorage.getItem('pcep_active_tab');
-    return savedTab || 'dashboard';
+    if (savedTab && VALID_TABS.includes(savedTab)) return savedTab;
+    return 'dashboard';
   });
 
   const [isDark, setIsDark] = useState<boolean>(() => {
-    return localStorage.getItem('pcep_theme') === 'dark';
+    const saved = localStorage.getItem('pcep_theme');
+    if (saved) return saved === 'dark';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
 
   // Estado para pasar ejercicio o filtro a la página de práctica
@@ -44,6 +75,54 @@ const AppContent: React.FC = () => {
     }
   }, [isDark]);
 
+  // Asegurar persistencia del tema en eventos de retroceso/bfcache
+  useEffect(() => {
+    const handlePageShow = () => {
+      const saved = localStorage.getItem('pcep_theme');
+      if (saved === 'dark') {
+        setIsDark(true);
+        document.documentElement.classList.add('dark');
+      } else if (saved === 'light') {
+        setIsDark(false);
+        document.documentElement.classList.remove('dark');
+      }
+    };
+    window.addEventListener('pageshow', handlePageShow);
+    return () => window.removeEventListener('pageshow', handlePageShow);
+  }, []);
+
+  // Sincronizar navegación interna con el historial del navegador (Atrás / Adelante)
+  useEffect(() => {
+    const initialHash = currentTab === 'home' ? '' : `#${currentTab}`;
+    const initialUrl = initialHash ? `${window.location.pathname}${initialHash}` : window.location.pathname;
+    window.history.replaceState({ tab: currentTab }, '', initialUrl);
+
+    const handleHistoryChange = (event?: Event) => {
+      const popState = event as PopStateEvent | undefined;
+      if (popState?.state && popState.state.tab && VALID_TABS.includes(popState.state.tab)) {
+        setCurrentTab(popState.state.tab);
+        if (popState.state.extraId) {
+          setSelectedExerciseId(popState.state.extraId);
+        }
+        return;
+      }
+
+      const fromUrl = getTabFromLocation();
+      if (fromUrl) {
+        setCurrentTab(fromUrl);
+      } else {
+        setCurrentTab('home');
+      }
+    };
+
+    window.addEventListener('popstate', handleHistoryChange);
+    window.addEventListener('hashchange', handleHistoryChange);
+    return () => {
+      window.removeEventListener('popstate', handleHistoryChange);
+      window.removeEventListener('hashchange', handleHistoryChange);
+    };
+  }, []);
+
   const handleToggleTheme = () => {
     setIsDark(prev => !prev);
   };
@@ -54,12 +133,18 @@ const AppContent: React.FC = () => {
     }
     setCurrentTab(tab);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Actualizar historial del navegador para que los botones Atrás y Adelante funcionen dentro de la app
+    const targetHash = tab === 'home' ? '' : `#${tab}`;
+    const targetUrl = targetHash ? `${window.location.pathname}${targetHash}` : window.location.pathname;
+
+    if (window.location.hash !== targetHash) {
+      window.history.pushState({ tab, extraId }, '', targetUrl);
+    }
   };
 
   const handlePracticeConcept = (_objective: PCEPObjectiveCode) => {
-    setSelectedExerciseId(null);
-    setCurrentTab('practice');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    handleNavigate('practice');
   };
 
   return (
