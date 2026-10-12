@@ -127,14 +127,14 @@ export const CodeChip: React.FC<{ code: string }> = ({ code }) => {
   );
 };
 
-// Bloque multilínea de código Python con coloreado de sintaxis de alto contraste
 export const PythonCodeBlock: React.FC<{ code: string; className?: string }> = ({
   code,
   className = '',
 }) => {
   const tokens = tokenizePythonCode(code);
+  const defaultTextSize = className.includes('text-') ? '' : 'text-sm';
   return (
-    <pre className={`font-mono text-xs overflow-x-auto leading-relaxed select-text ${className}`}>
+    <pre className={`font-mono whitespace-pre overflow-x-auto select-text ${defaultTextSize} ${className}`}>
       <code>
         {tokens.map((tok, i) => {
           let colorClass = 'text-slate-100';
