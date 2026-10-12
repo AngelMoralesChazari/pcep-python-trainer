@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   AlertTriangle, FileJson, Users, RefreshCw, CheckCircle2,
   Clock, Award, Shield, Search, Filter, BookOpen, AlertCircle,
-  Sparkles, ExternalLink
+  Sparkles, ExternalLink, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { collection, onSnapshot, getDocs } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from '../lib/firebase';
@@ -37,6 +37,8 @@ export const TeacherDashboardPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<'all' | 'students' | 'teachers'>('students');
   const [statusFilter, setStatusFilter] = useState<'all' | 'passed' | 'risk'>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const STUDENTS_PER_PAGE = 10;
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<string>('');
 
@@ -175,6 +177,15 @@ export const TeacherDashboardPage: React.FC = () => {
     }
     return true;
   });
+
+  // Reiniciar a la página 1 cuando se modifiquen los filtros de búsqueda o rol
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, roleFilter, statusFilter]);
+
+  const totalPages = Math.ceil(filteredStudents.length / STUDENTS_PER_PAGE) || 1;
+  const startIndex = (currentPage - 1) * STUDENTS_PER_PAGE;
+  const paginatedStudents = filteredStudents.slice(startIndex, startIndex + STUDENTS_PER_PAGE);
 
   const selectedStudent = students.find(s => s.id === selectedStudentId) || (filteredStudents.length > 0 ? filteredStudents[0] : null);
 
@@ -397,7 +408,7 @@ export const TeacherDashboardPage: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
-                      {filteredStudents.map((st) => {
+                      {paginatedStudents.map((st) => {
                         const isSelected = selectedStudent?.id === st.id;
                         return (
                           <tr
@@ -457,6 +468,56 @@ export const TeacherDashboardPage: React.FC = () => {
                     </tbody>
                   </table>
                 </div>
+
+                {/* Controles de Paginación de Alumnos (10 en 10) */}
+                {filteredStudents.length > STUDENTS_PER_PAGE && (
+                  <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                    <span className="text-slate-500 dark:text-slate-400">
+                      Mostrando <span className="font-semibold text-slate-800 dark:text-slate-200">{startIndex + 1}</span> -{' '}
+                      <span className="font-semibold text-slate-800 dark:text-slate-200">{Math.min(startIndex + STUDENTS_PER_PAGE, filteredStudents.length)}</span> de{' '}
+                      <span className="font-semibold text-slate-800 dark:text-slate-200">{filteredStudents.length}</span> alumnos
+                    </span>
+
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                        className="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition font-medium flex items-center gap-1 cursor-pointer"
+                      >
+                        <ChevronLeft className="w-3.5 h-3.5" />
+                        <span>Anterior</span>
+                      </button>
+
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                          <button
+                            key={page}
+                            type="button"
+                            onClick={() => setCurrentPage(page)}
+                            className={`w-7 h-7 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                              page === currentPage
+                                ? 'bg-petrol-600 text-white shadow-xs'
+                                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        ))}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                        disabled={currentPage === totalPages}
+                        className="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition font-medium flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>Siguiente</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Ficha Diagnóstica del Alumno Seleccionado */}
