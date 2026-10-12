@@ -3,6 +3,7 @@ import { BookOpen, CheckCircle, AlertTriangle, ArrowRight, Code, Sparkles } from
 import { PCEP_SYLLABUS } from '../data/syllabusData';
 import { THEORY_MODULES } from '../data/theoryContent';
 import { PCEPObjectiveCode } from '../types/pcep';
+import { TheoryMarkdownRenderer } from '../components/theory/TheoryMarkdownRenderer';
 
 interface StudyPageProps {
   onPracticeConcept: (objective: PCEPObjectiveCode) => void;
@@ -96,10 +97,8 @@ export const StudyPage: React.FC<StudyPageProps> = ({ onPracticeConcept }) => {
               </p>
             </div>
 
-            {/* Explicación en Markdown estructurado */}
-            <div className="text-slate-800 dark:text-slate-200 text-sm leading-relaxed space-y-4 whitespace-pre-line font-normal">
-              {currentTheory.explanationMarkdown}
-            </div>
+            {/* Explicación en Markdown estructurado con coloreado sintáctico */}
+            <TheoryMarkdownRenderer content={currentTheory.explanationMarkdown} />
 
             {/* Ejemplos de Código */}
             <div className="space-y-4 pt-4">
