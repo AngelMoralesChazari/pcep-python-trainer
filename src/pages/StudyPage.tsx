@@ -156,7 +156,7 @@ export const StudyPage: React.FC<StudyPageProps> = ({ onPracticeConcept }) => {
             Temario Oficial PCEP-30-02
           </span>
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100">
-            Biblioteca Teórica y Conceptos Clave
+            Conceptos Clave
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             Estudia los conceptos oficiales con coloreado de sintaxis, analiza errores frecuentes y avanza paso a paso.
@@ -181,8 +181,8 @@ export const StudyPage: React.FC<StudyPageProps> = ({ onPracticeConcept }) => {
               {isLastOverall
                 ? 'Completar'
                 : isLastOfCurrentSection
-                ? `Siguiente Sección`
-                : `Siguiente (${nextCode})`}
+                  ? `Siguiente Sección`
+                  : `Siguiente (${nextCode})`}
             </span>
             <ArrowRight className="w-4 h-4" />
           </button>
@@ -221,32 +221,29 @@ export const StudyPage: React.FC<StudyPageProps> = ({ onPracticeConcept }) => {
               return (
                 <div
                   key={sec.id}
-                  className={`rounded-xl border transition-all duration-200 overflow-hidden ${
-                    isCurrentSection
+                  className={`rounded-xl border transition-all duration-200 overflow-hidden ${isCurrentSection
                       ? 'border-petrol-300 dark:border-petrol-800 bg-slate-50/80 dark:bg-slate-900/80 shadow-xs'
                       : 'border-slate-200 dark:border-slate-800 bg-slate-50/40 dark:bg-slate-900/40'
-                  }`}
+                    }`}
                 >
                   {/* Encabezado del módulo acordeón (clic para desplegar/contraer) */}
                   <button
                     type="button"
                     onClick={() => toggleSection(sec.id)}
-                    className={`w-full p-3.5 flex flex-col gap-2.5 text-left transition cursor-pointer select-none ${
-                      isExpanded
+                    className={`w-full p-3.5 flex flex-col gap-2.5 text-left transition cursor-pointer select-none ${isExpanded
                         ? 'bg-slate-100/70 dark:bg-slate-800/50'
                         : 'hover:bg-slate-100/50 dark:hover:bg-slate-800/30'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2.5 min-w-0">
                         <div
-                          className={`w-6 h-6 rounded-lg flex items-center justify-center font-mono text-xs font-bold shrink-0 transition ${
-                            isFullyCompleted
+                          className={`w-6 h-6 rounded-lg flex items-center justify-center font-mono text-xs font-bold shrink-0 transition ${isFullyCompleted
                               ? 'bg-emerald-600 text-white shadow-xs'
                               : isCurrentSection
-                              ? 'bg-petrol-600 text-white shadow-xs'
-                              : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
-                          }`}
+                                ? 'bg-petrol-600 text-white shadow-xs'
+                                : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                            }`}
                         >
                           {isFullyCompleted ? '✓' : sec.id}
                         </div>
@@ -272,9 +269,8 @@ export const StudyPage: React.FC<StudyPageProps> = ({ onPracticeConcept }) => {
                         )}
 
                         <div
-                          className={`p-1 rounded-md text-slate-400 transition-transform duration-200 ${
-                            isExpanded ? 'rotate-180 text-petrol-600 dark:text-petrol-400' : ''
-                          }`}
+                          className={`p-1 rounded-md text-slate-400 transition-transform duration-200 ${isExpanded ? 'rotate-180 text-petrol-600 dark:text-petrol-400' : ''
+                            }`}
                         >
                           <ChevronDown className="w-4 h-4" />
                         </div>
@@ -284,13 +280,12 @@ export const StudyPage: React.FC<StudyPageProps> = ({ onPracticeConcept }) => {
                     {/* Barra de progreso de la sección que avanza al terminar objetivos */}
                     <div className="w-full bg-slate-200/80 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
                       <div
-                        className={`h-full rounded-full transition-all duration-700 ${
-                          isFullyCompleted
+                        className={`h-full rounded-full transition-all duration-700 ${isFullyCompleted
                             ? 'bg-emerald-500'
                             : sectionProgressPercent > 0
-                            ? 'bg-petrol-500'
-                            : 'bg-transparent'
-                        }`}
+                              ? 'bg-petrol-500'
+                              : 'bg-transparent'
+                          }`}
                         style={{
                           width: `${sectionProgressPercent}%`,
                         }}
@@ -310,21 +305,19 @@ export const StudyPage: React.FC<StudyPageProps> = ({ onPracticeConcept }) => {
                             key={obj.code}
                             type="button"
                             onClick={() => handleSelectObjective(obj.code, sec.id)}
-                            className={`w-full text-left px-3 py-2.5 rounded-lg text-xs sm:text-[13px] transition flex items-center justify-between cursor-pointer ${
-                              isSelected
+                            className={`w-full text-left px-3 py-2.5 rounded-lg text-xs sm:text-[13px] transition flex items-center justify-between cursor-pointer ${isSelected
                                 ? 'bg-petrol-50 dark:bg-petrol-950/70 text-petrol-800 dark:text-petrol-200 font-semibold border-l-3 border-petrol-600 shadow-xs'
                                 : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-100'
-                            }`}
+                              }`}
                           >
                             <div className="flex items-center gap-2.5 truncate">
                               <span
-                                className={`font-mono text-xs px-1.5 py-0.5 rounded font-bold ${
-                                  isSelected
+                                className={`font-mono text-xs px-1.5 py-0.5 rounded font-bold ${isSelected
                                     ? 'bg-petrol-200/70 dark:bg-petrol-900 text-petrol-900 dark:text-petrol-200'
                                     : isCompleted
-                                    ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300'
-                                    : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
-                                }`}
+                                      ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300'
+                                      : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+                                  }`}
                               >
                                 {obj.code}
                               </span>
@@ -480,18 +473,17 @@ export const StudyPage: React.FC<StudyPageProps> = ({ onPracticeConcept }) => {
 
             <button
               onClick={handleNext}
-              className={`w-full sm:w-auto flex items-center justify-center gap-2.5 px-6 py-2.5 rounded-xl text-sm font-semibold transition shadow-md cursor-pointer ${
-                isLastOfCurrentSection
+              className={`w-full sm:w-auto flex items-center justify-center gap-2.5 px-6 py-2.5 rounded-xl text-sm font-semibold transition shadow-md cursor-pointer ${isLastOfCurrentSection
                   ? 'bg-gradient-to-r from-petrol-600 to-teal-600 hover:from-petrol-700 hover:to-teal-700 text-white'
                   : 'bg-petrol-600 hover:bg-petrol-700 text-white'
-              }`}
+                }`}
             >
               <span>
                 {isLastOverall
                   ? '¡Completar Temario! (Ir a Práctica)'
                   : isLastOfCurrentSection
-                  ? `Siguiente Sección: ${nextSectionTitle}`
-                  : `Siguiente: ${nextCode}`}
+                    ? `Siguiente Sección: ${nextSectionTitle}`
+                    : `Siguiente: ${nextCode}`}
               </span>
               <ArrowRight className="w-4 h-4" />
             </button>
