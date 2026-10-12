@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -31,7 +31,7 @@ interface AuthContextType {
   resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   switchRole: (newRole: 'student' | 'teacher') => void;
-  updateUserStats: (newStats: Partial<UserProfile['stats']>) => void;
+  updateUserStats: (newStats: Partial<UserProfile['stats']> | ((prevStats: UserProfile['stats']) => Partial<UserProfile['stats']>)) => void;
 }
 
 export const getLocalDateKey = (d: Date = new Date()): string => {
@@ -134,6 +134,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return null;
   });
 
+  const userRef = useRef(user);
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
+
 // Escuchar cambios de autenticación en Firebase Cloud
   useEffect(() => {
     if (!isFirebaseConfigured || !auth) return;
@@ -223,30 +228,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem(awardKey, 'true');
       localStorage.setItem(timeKey, String(sec));
 
-      const lastConfDate = user.stats?.lastConfirmedStreakDate;
-      const diff = lastConfDate ? getDaysDiff(lastConfDate, todayStr) : 1;
+      updateUserStats(prevStats => {
+        const lastConfDate = prevStats.lastConfirmedStreakDate;
+        const diff = lastConfDate ? getDaysDiff(lastConfDate, todayStr) : 1;
 
-      // Calcular nueva racha
-      let nextStreak = user.stats?.currentStreakDays || 1;
-      if (diff > 3) {
-        // Pasaron más de 2 días sin conexión -> Inicia en 1
-        nextStreak = 1;
-      } else if (lastConfDate === todayStr) {
-        // Si previamente se confirmó pero no había subido a 2do día:
-        nextStreak = Math.max(2, (user.stats?.currentStreakDays || 1));
-      } else {
-        // Consecutivo o reanudación de pausa
-        nextStreak = Math.max(2, (user.stats?.currentStreakDays || 1) + 1);
-      }
+        // Calcular nueva racha
+        let nextStreak = prevStats.currentStreakDays || 1;
+        if (diff > 3) {
+          // Pasaron más de 2 días sin conexión -> Inicia en 1
+          nextStreak = 1;
+        } else if (lastConfDate === todayStr) {
+          // Si previamente se confirmó pero no había subido a 2do día:
+          nextStreak = Math.max(2, prevStats.currentStreakDays || 1);
+        } else {
+          // Consecutivo o reanudación de pausa
+          nextStreak = Math.max(2, (prevStats.currentStreakDays || 1) + 1);
+        }
 
-      updateUserStats({
-        currentStreakDays: nextStreak,
-        isTodayStreakConfirmed: true,
-        streakStatus: 'active',
-        lastConfirmedStreakDate: todayStr,
-        streakAwardedDate: todayStr,
-        todayConnectedSeconds: sec,
-        lastActiveDate: new Date().toISOString()
+        return {
+          currentStreakDays: nextStreak,
+          isTodayStreakConfirmed: true,
+          streakStatus: 'active',
+          lastConfirmedStreakDate: todayStr,
+          streakAwardedDate: todayStr,
+          todayConnectedSeconds: sec,
+          studyTimeSeconds: (prevStats.studyTimeSeconds || 0) + 1,
+          lastActiveDate: new Date().toISOString()
+        };
       });
     };
 
@@ -296,22 +304,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
-    // 2. Cronómetro continuo segundo a segundo
+    // 2. Cronómetro continuo segundo a segundo (avanza en vivo sin congelarse)
     const timer = setInterval(() => {
-      if (document.hidden) return;
-
       todaySeconds += 1;
       localStorage.setItem(timeKey, String(todaySeconds));
 
       const awarded = localStorage.getItem(awardKey) === 'true';
-      if (todaySeconds >= 300 && (!awarded || user.stats?.currentStreakDays === 1)) {
+      if (todaySeconds >= 300 && (!awarded || userRef.current?.stats?.currentStreakDays === 1)) {
         awardStreakForToday(todaySeconds);
-      } else if (todaySeconds % 10 === 0) {
-        updateUserStats({
+      } else if (todaySeconds % 5 === 0) {
+        // Incrementar studyTimeSeconds de forma continua y acumulativa cada 5 segundos
+        updateUserStats(prevStats => ({
           todayConnectedSeconds: todaySeconds,
-          studyTimeSeconds: (user.stats?.studyTimeSeconds || 0) + 10,
+          studyTimeSeconds: (prevStats.studyTimeSeconds || 0) + 5,
           lastActiveDate: new Date().toISOString()
-        });
+        }));
       }
     }, 1000);
 
@@ -503,19 +510,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const updateUserStats = (newStats: Partial<UserProfile['stats']>) => {
+  const updateUserStats = (
+    newStats: Partial<UserProfile['stats']> | ((prevStats: UserProfile['stats']) => Partial<UserProfile['stats']>)
+  ) => {
     setUser(prev => {
       if (!prev) return prev;
+      const resolved = typeof newStats === 'function' ? newStats(prev.stats) : newStats;
       const updated = {
         ...prev,
         stats: {
           ...prev.stats,
-          ...newStats
+          ...resolved
         }
       };
       syncUserToRegistry(updated);
-      if (isFirebaseConfigured && auth && user) {
-        setDoc(doc(db, 'users', user.uid), { stats: updated.stats, lastActiveDate: new Date().toISOString() }, { merge: true }).catch(() => {});
+      if (isFirebaseConfigured && auth && prev) {
+        setDoc(doc(db, 'users', prev.uid), { stats: updated.stats, lastActiveDate: new Date().toISOString() }, { merge: true }).catch(() => {});
       }
       return updated;
     });
