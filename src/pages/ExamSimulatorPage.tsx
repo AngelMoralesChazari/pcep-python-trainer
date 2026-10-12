@@ -531,25 +531,34 @@ export const ExamSimulatorPage: React.FC = () => {
                 </div>
               )}
 
-              {/* Botones de navegación Anterior / Siguiente */}
+              {/* Botones de navegación Anterior / Siguiente / Finalizar */}
               <div className="pt-4 flex items-center justify-between border-t border-slate-200 dark:border-slate-800">
                 <button
                   disabled={currentIndex === 0}
                   onClick={() => setCurrentIndex(prev => Math.max(0, prev - 1))}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition disabled:opacity-40"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition disabled:opacity-40 cursor-pointer"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   <span>Anterior</span>
                 </button>
 
-                <button
-                  disabled={currentIndex === examQuestions.length - 1}
-                  onClick={() => setCurrentIndex(prev => Math.min(examQuestions.length - 1, prev + 1))}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-petrol-600 hover:bg-petrol-700 text-white text-xs font-medium transition shadow-sm disabled:opacity-40"
-                >
-                  <span>Siguiente</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
+                {currentIndex === examQuestions.length - 1 ? (
+                  <button
+                    onClick={handleFinishExam}
+                    className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition shadow-md cursor-pointer"
+                  >
+                    <span>Finalizar y Entregar</span>
+                    <CheckCircle2 className="w-4 h-4" />
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setCurrentIndex(prev => Math.min(examQuestions.length - 1, prev + 1))}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-petrol-600 hover:bg-petrol-700 text-white text-xs font-medium transition shadow-sm cursor-pointer"
+                  >
+                    <span>Siguiente</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                )}
               </div>
             </>
           )}
