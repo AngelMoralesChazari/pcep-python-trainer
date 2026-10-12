@@ -34,6 +34,32 @@ interface AuthContextType {
   updateUserStats: (newStats: Partial<UserProfile['stats']>) => void;
 }
 
+export const getLocalDateKey = (d: Date = new Date()): string => {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+export const getDaysDiff = (dateStr1: string, dateStr2: string): number => {
+  try {
+    const [y1, m1, d1] = dateStr1.split('-').map(Number);
+    const [y2, m2, d2] = dateStr2.split('-').map(Number);
+    const d1Obj = new Date(y1, m1 - 1, d1);
+    const d2Obj = new Date(y2, m2 - 1, d2);
+    const diffMs = d2Obj.getTime() - d1Obj.getTime();
+    return Math.round(diffMs / (1000 * 60 * 60 * 24));
+  } catch {
+    return 0;
+  }
+};
+
+const yesterdayDateStr = (() => {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return getLocalDateKey(d);
+})();
+
 const DEFAULT_ADMIN: UserProfile = {
   uid: 'usr-admin-uagro',
   email: '24722899@uagro.mx',
@@ -46,7 +72,11 @@ const DEFAULT_ADMIN: UserProfile = {
     accuracyPercentage: 78,
     studyTimeSeconds: 45780,
     currentStreakDays: 7,
-    lastActiveDate: new Date().toISOString()
+    lastActiveDate: new Date().toISOString(),
+    streakStatus: 'pending',
+    lastConfirmedStreakDate: yesterdayDateStr,
+    todayConnectedSeconds: 0,
+    isTodayStreakConfirmed: false
   }
 };
 
@@ -62,7 +92,11 @@ const DEFAULT_STUDENT: UserProfile = {
     accuracyPercentage: 72,
     studyTimeSeconds: 14200,
     currentStreakDays: 3,
-    lastActiveDate: new Date().toISOString()
+    lastActiveDate: new Date().toISOString(),
+    streakStatus: 'pending',
+    lastConfirmedStreakDate: yesterdayDateStr,
+    todayConnectedSeconds: 0,
+    isTodayStreakConfirmed: false
   }
 };
 
@@ -175,6 +209,155 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.removeItem('pcep_active_user');
     }
   }, [user]);
+
+  // Monitoreo de actividad y confirmación de racha (Mínimo 5 minutos / 300 segundos conectados)
+  useEffect(() => {
+    if (!user) return;
+
+    const todayStr = getLocalDateKey();
+    const timeKey = `pcep_time_${user.uid}_${todayStr}`;
+    let todaySeconds = Number(localStorage.getItem(timeKey) || user.stats?.todayConnectedSeconds || 0);
+
+    // Evaluar estado diario de la racha según días transcurridos
+    const lastConf = user.stats?.lastConfirmedStreakDate;
+    if (lastConf) {
+      const diff = getDaysDiff(lastConf, todayStr);
+      if (diff === 0) {
+        // Mismo día ya confirmado con >= 5 min
+        if (!user.stats.isTodayStreakConfirmed || user.stats.streakStatus !== 'active') {
+          updateUserStats({
+            isTodayStreakConfirmed: true,
+            streakStatus: 'active',
+            todayConnectedSeconds: todaySeconds
+          });
+        }
+      } else if (diff === 1) {
+        // Día consecutivo: pendiente de completar 5 minutos hoy
+        if (todaySeconds >= 300 && !user.stats.isTodayStreakConfirmed) {
+          updateUserStats({
+            currentStreakDays: (user.stats.currentStreakDays || 0) + 1,
+            isTodayStreakConfirmed: true,
+            streakStatus: 'active',
+            lastConfirmedStreakDate: todayStr,
+            todayConnectedSeconds: todaySeconds
+          });
+        } else if (todaySeconds < 300 && user.stats.streakStatus !== 'pending') {
+          updateUserStats({
+            isTodayStreakConfirmed: false,
+            streakStatus: 'pending',
+            todayConnectedSeconds: todaySeconds
+          });
+        }
+      } else if (diff === 2 || diff === 3) {
+        // Faltaron 1 o 2 días sin conexión -> La racha se pone en pausa (se conserva su valor)
+        if (todaySeconds >= 300 && !user.stats.isTodayStreakConfirmed) {
+          updateUserStats({
+            currentStreakDays: (user.stats.currentStreakDays || 0) + 1,
+            isTodayStreakConfirmed: true,
+            streakStatus: 'active',
+            lastConfirmedStreakDate: todayStr,
+            todayConnectedSeconds: todaySeconds
+          });
+        } else if (todaySeconds < 300 && user.stats.streakStatus !== 'paused') {
+          updateUserStats({
+            isTodayStreakConfirmed: false,
+            streakStatus: 'paused',
+            todayConnectedSeconds: todaySeconds
+          });
+        }
+      } else if (diff > 3) {
+        // Pasaron más de 2 días sin conectarse -> Pierden la racha a 0
+        if (todaySeconds >= 300 && !user.stats.isTodayStreakConfirmed) {
+          updateUserStats({
+            currentStreakDays: 1,
+            isTodayStreakConfirmed: true,
+            streakStatus: 'active',
+            lastConfirmedStreakDate: todayStr,
+            todayConnectedSeconds: todaySeconds
+          });
+        } else if (todaySeconds < 300 && (user.stats.currentStreakDays !== 0 || user.stats.streakStatus !== 'pending')) {
+          updateUserStats({
+            currentStreakDays: 0,
+            isTodayStreakConfirmed: false,
+            streakStatus: 'pending',
+            todayConnectedSeconds: todaySeconds
+          });
+        }
+      }
+    } else {
+      // Sin fecha previa confirmada
+      if (todaySeconds >= 300 && !user.stats.isTodayStreakConfirmed) {
+        updateUserStats({
+          currentStreakDays: Math.max(1, user.stats.currentStreakDays || 1),
+          isTodayStreakConfirmed: true,
+          streakStatus: 'active',
+          lastConfirmedStreakDate: todayStr,
+          todayConnectedSeconds: todaySeconds
+        });
+      }
+    }
+
+    // Cronómetro de actividad segundo a segundo mientras la pestaña esté activa
+    const timer = setInterval(() => {
+      if (document.hidden) return;
+
+      todaySeconds += 1;
+
+      // Al cumplir 300 segundos (5 minutos) de actividad hoy: confirmar racha
+      if (todaySeconds === 300) {
+        localStorage.setItem(timeKey, String(todaySeconds));
+        setUser(prev => {
+          if (!prev) return prev;
+          const lastDate = prev.stats?.lastConfirmedStreakDate;
+          const diffDays = lastDate ? getDaysDiff(lastDate, todayStr) : 1;
+
+          let nextStreak = prev.stats?.currentStreakDays || 0;
+          if (diffDays === 1) {
+            nextStreak += 1; // Día siguiente consecutivo -> Aumenta racha
+          } else if (diffDays === 2 || diffDays === 3) {
+            nextStreak += 1; // Reanuda tras haber estado en pausa de 1 o 2 días -> Aumenta racha
+          } else if (diffDays > 3 || nextStreak === 0) {
+            nextStreak = 1; // Inicia nueva racha tras perderla
+          }
+
+          const updated: UserProfile = {
+            ...prev,
+            stats: {
+              ...prev.stats,
+              currentStreakDays: nextStreak,
+              isTodayStreakConfirmed: true,
+              streakStatus: 'active',
+              lastConfirmedStreakDate: todayStr,
+              todayConnectedSeconds: todaySeconds,
+              studyTimeSeconds: (prev.stats?.studyTimeSeconds || 0) + 1,
+              lastActiveDate: new Date().toISOString()
+            }
+          };
+          syncUserToRegistry(updated);
+          return updated;
+        });
+      } else if (todaySeconds % 10 === 0) {
+        // Persistir cada 10 segundos
+        localStorage.setItem(timeKey, String(todaySeconds));
+        setUser(prev => {
+          if (!prev) return prev;
+          const updated: UserProfile = {
+            ...prev,
+            stats: {
+              ...prev.stats,
+              todayConnectedSeconds: todaySeconds,
+              studyTimeSeconds: (prev.stats?.studyTimeSeconds || 0) + 10,
+              lastActiveDate: new Date().toISOString()
+            }
+          };
+          syncUserToRegistry(updated);
+          return updated;
+        });
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [user?.uid]);
 
   // Inicio de sesión con Google (Cuenta institucional o personal)
   const loginWithGoogle = async () => {
