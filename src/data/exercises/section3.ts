@@ -1382,7 +1382,7 @@ export const SECTION_3_EXERCISES: Exercise[] = [
     "pcepObjective": "3.2",
     "difficulty": "intermediate",
     "type": "code_analysis",
-    "statement": "¿Qué ocurre al intentar usar una tupla que contiene una lista como clave de un diccionario?\n\n```python\nd = {(1, [2]): 'Valor'}\n```",
+    "statement": "¿Qué ocurre al intentar usar una tupla que contiene una lista como clave de un diccionario?",
     "explanation": "Para que una tupla sea hashable, TODOS sus elementos deben ser hashables. Al contener una lista (tipo mutable no hashable), se lanza `TypeError: unhashable type: 'list'`.",
     "concepts": [
       "TypeError",

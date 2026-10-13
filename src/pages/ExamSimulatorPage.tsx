@@ -465,31 +465,52 @@ export const ExamSimulatorPage: React.FC = () => {
                 </button>
               </div>
 
-              <div className="text-slate-900 dark:text-slate-100 text-base leading-relaxed font-normal">
-                <TheoryMarkdownRenderer content={currentExercise.statement} />
-              </div>
+              {(() => {
+                const hasFencedCode = /```(?:python)?\s*[\s\S]*?```/i.test(currentExercise.statement);
+                let cleanStatement = currentExercise.statement;
+                let effectiveCodeSnippet = currentExercise.codeSnippet;
 
-              {currentExercise.codeSnippet && (
-                <div className="my-4 rounded-2xl overflow-hidden border border-slate-700/80 bg-slate-950 shadow-md">
-                  <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-800 bg-slate-900/80 text-xs font-mono">
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-full bg-rose-500/90 inline-block"></span>
-                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500/90 inline-block"></span>
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/90 inline-block"></span>
-                      <span className="ml-1.5 font-semibold text-slate-300 text-xs">Python 3</span>
+                if (hasFencedCode) {
+                  if (!effectiveCodeSnippet) {
+                    const m = currentExercise.statement.match(/```(?:python)?\s*([\s\S]*?)```/i);
+                    if (m) effectiveCodeSnippet = m[1].trim();
+                  }
+                  cleanStatement = currentExercise.statement
+                    .replace(/```(?:python)?\s*[\s\S]*?```/gi, '')
+                    .replace(/\n\s*\n\s*\n/g, '\n\n')
+                    .trim();
+                }
+
+                return (
+                  <>
+                    <div className="text-slate-900 dark:text-slate-100 text-base leading-relaxed font-normal">
+                      <TheoryMarkdownRenderer content={cleanStatement} />
                     </div>
-                    <span className="text-slate-400 text-xs font-sans">Código a examinar</span>
-                  </div>
-                  <div className="p-5 sm:p-6 flex justify-center bg-slate-950 overflow-x-auto">
-                    <div className="inline-block text-left min-w-[260px] max-w-full">
-                      <PythonCodeBlock
-                        code={currentExercise.codeSnippet}
-                        className="text-base sm:text-lg leading-relaxed font-mono"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
+
+                    {effectiveCodeSnippet && (
+                      <div className="my-4 rounded-2xl overflow-hidden border border-slate-700/80 bg-slate-950 shadow-md">
+                        <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-800 bg-slate-900/80 text-xs font-mono">
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-2.5 h-2.5 rounded-full bg-rose-500/90 inline-block"></span>
+                            <span className="w-2.5 h-2.5 rounded-full bg-amber-500/90 inline-block"></span>
+                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/90 inline-block"></span>
+                            <span className="ml-1.5 font-semibold text-slate-300 text-xs">Python 3</span>
+                          </div>
+                          <span className="text-slate-400 text-xs font-sans">Código a examinar</span>
+                        </div>
+                        <div className="p-5 sm:p-6 flex justify-center bg-slate-950 overflow-x-auto">
+                          <div className="inline-block text-left min-w-[260px] max-w-full">
+                            <PythonCodeBlock
+                              code={effectiveCodeSnippet}
+                              className="text-base sm:text-lg leading-relaxed font-mono"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
 
               {/* Opciones */}
               {currentExercise.options && (

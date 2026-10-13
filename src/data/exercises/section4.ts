@@ -910,7 +910,7 @@ export const SECTION_4_EXERCISES: Exercise[] = [
     "pcepObjective": "4.2",
     "difficulty": "basic_plus",
     "type": "code_analysis",
-    "statement": "¿Qué error produce el siguiente código?\n\n```python\nx = 10\ndef sumar():\n    x += 1\n\nsumar()\n```",
+    "statement": "¿Qué error produce el siguiente código?",
     "explanation": "Python detecta la asignación `x = ...` y clasifica a `x` como variable local. Al intentar leerla para sumarle 1 antes de haberla asignado localmente, lanza `UnboundLocalError: cannot access local variable 'x' where it is not associated with a value`.",
     "concepts": [
       "UnboundLocalError",
@@ -2738,7 +2738,7 @@ export const SECTION_4_EXERCISES: Exercise[] = [
     "pcepObjective": "4.4",
     "difficulty": "intermediate",
     "type": "code_analysis",
-    "statement": "¿Qué ocurre si una variable se asigna después de la línea que produce la excepción en try, y se intenta leer en finally?\n\n```python\ntry:\n    1 / 0\n    x = 10\nfinally:\n    print(x)\n```",
+    "statement": "¿Qué ocurre si una variable se asigna después de la línea que produce la excepción en try, y se intenta leer en finally?",
     "explanation": "Como la excepción ocurre en `1 / 0`, la línea `x = 10` nunca llega a ejecutarse. Al intentar imprimir `x` en finally, se lanza `NameError: name 'x' is not defined`.",
     "concepts": [
       "NameError en finally",

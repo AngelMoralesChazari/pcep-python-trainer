@@ -725,7 +725,7 @@ export const SECTION_2_EXERCISES: Exercise[] = [
     "pcepObjective": "2.1",
     "difficulty": "basic_plus",
     "type": "code_analysis",
-    "statement": "¿Qué error produce el siguiente código?\n\n```python\nx = 10\nif x > 5\n    print('Mayor')\n```",
+    "statement": "¿Qué error produce el siguiente código?",
     "explanation": "Olvidar los dos puntos `:` al final del encabezado de una sentencia if es un error sintáctico: `SyntaxError: expected ':'`.",
     "concepts": [
       "SyntaxError",
@@ -1993,7 +1993,7 @@ export const SECTION_2_EXERCISES: Exercise[] = [
     "pcepObjective": "2.2",
     "difficulty": "basic_plus",
     "type": "code_analysis",
-    "statement": "¿Qué ocurre con el siguiente código?\n\n```python\ni = 0\nwhile i < 3:\n    if i == 1:\n        continue\n    print(i)\n    i += 1\n```",
+    "statement": "¿Qué ocurre con el siguiente código?",
     "explanation": "Cuando i llega a 1, entra al `if` y ejecuta `continue` antes de alcanzar `i += 1`. Como `i` nunca se incrementa, se queda en 1 para siempre, creando un bucle infinito.",
     "concepts": [
       "bucle infinito",

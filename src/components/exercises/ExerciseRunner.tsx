@@ -147,35 +147,56 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({ exercise, onNext
         </button>
       </div>
 
-      {/* Enunciado con resaltado para código en línea */}
-      <div className="text-slate-900 dark:text-slate-100 text-base sm:text-lg leading-relaxed font-medium">
-        <TheoryMarkdownRenderer content={exercise.statement} />
-      </div>
+      {/* Enunciado con resaltado para código en línea (limpiando bloques de código duplicados si existen) */}
+      {(() => {
+        const hasFencedCode = /```(?:python)?\s*[\s\S]*?```/i.test(exercise.statement);
+        let cleanStatement = exercise.statement;
+        let effectiveCodeSnippet = exercise.codeSnippet;
 
-      {/* Fragmento de código relevante (para predicción o análisis) grande y centrado */}
-      {exercise.codeSnippet && (
-        <div className="my-5 rounded-2xl overflow-hidden border border-slate-700/80 bg-slate-950 shadow-xl max-w-4xl mx-auto w-full">
-          <div className="flex items-center justify-between px-5 py-3 border-b border-slate-800 bg-slate-900/80 text-xs font-mono">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1.5 mr-2">
-                <span className="w-3 h-3 rounded-full bg-rose-500/90 inline-block shadow-xs"></span>
-                <span className="w-3 h-3 rounded-full bg-amber-500/90 inline-block shadow-xs"></span>
-                <span className="w-3 h-3 rounded-full bg-emerald-500/90 inline-block shadow-xs"></span>
+        if (hasFencedCode) {
+          if (!effectiveCodeSnippet) {
+            const m = exercise.statement.match(/```(?:python)?\s*([\s\S]*?)```/i);
+            if (m) effectiveCodeSnippet = m[1].trim();
+          }
+          cleanStatement = exercise.statement
+            .replace(/```(?:python)?\s*[\s\S]*?```/gi, '')
+            .replace(/\n\s*\n\s*\n/g, '\n\n')
+            .trim();
+        }
+
+        return (
+          <>
+            <div className="text-slate-900 dark:text-slate-100 text-base sm:text-lg leading-relaxed font-medium">
+              <TheoryMarkdownRenderer content={cleanStatement} />
+            </div>
+
+            {/* Fragmento de código relevante (para predicción o análisis) grande y centrado */}
+            {effectiveCodeSnippet && (
+              <div className="my-5 rounded-2xl overflow-hidden border border-slate-700/80 bg-slate-950 shadow-xl max-w-4xl mx-auto w-full">
+                <div className="flex items-center justify-between px-5 py-3 border-b border-slate-800 bg-slate-900/80 text-xs font-mono">
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 mr-2">
+                      <span className="w-3 h-3 rounded-full bg-rose-500/90 inline-block shadow-xs"></span>
+                      <span className="w-3 h-3 rounded-full bg-amber-500/90 inline-block shadow-xs"></span>
+                      <span className="w-3 h-3 rounded-full bg-emerald-500/90 inline-block shadow-xs"></span>
+                    </div>
+                    <span className="font-semibold text-slate-200 text-xs">Python 3</span>
+                  </div>
+                  <span className="text-slate-400 text-xs font-sans">Fragmento de código a analizar</span>
+                </div>
+                <div className="py-7 px-6 sm:px-10 flex justify-center items-center bg-slate-950 overflow-x-auto">
+                  <div className="inline-block text-left min-w-[280px]">
+                    <PythonCodeBlock
+                      code={effectiveCodeSnippet}
+                      className="text-lg sm:text-xl lg:text-[22px] leading-[1.8] tracking-wide font-mono"
+                    />
+                  </div>
+                </div>
               </div>
-              <span className="font-semibold text-slate-200 text-xs">Python 3</span>
-            </div>
-            <span className="text-slate-400 text-xs font-sans">Fragmento de código a analizar</span>
-          </div>
-          <div className="py-7 px-6 sm:px-10 flex justify-center items-center bg-slate-950 overflow-x-auto">
-            <div className="inline-block text-left min-w-[280px]">
-              <PythonCodeBlock
-                code={exercise.codeSnippet}
-                className="text-lg sm:text-xl lg:text-[22px] leading-[1.8] tracking-wide font-mono"
-              />
-            </div>
-          </div>
-        </div>
-      )}
+            )}
+          </>
+        );
+      })()}
 
       {/* CONTENIDO INTERACTIVO SEGÚN TIPO */}
 

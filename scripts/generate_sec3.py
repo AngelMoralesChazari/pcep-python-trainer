@@ -579,7 +579,7 @@ def build_all_section3():
     # 50 (L3, output_prediction)
     exercises.append(make_ex(
         "pcep-s3-050", "Tupla con Lista como Clave de Diccionario", "Tuplas", "Unhashable Type in Tuple Key", "3.2", "intermediate", "code_analysis",
-        "¿Qué ocurre al intentar usar una tupla que contiene una lista como clave de un diccionario?\n\n```python\nd = {(1, [2]): 'Valor'}\n```",
+        "¿Qué ocurre al intentar usar una tupla que contiene una lista como clave de un diccionario?",
         "Para que una tupla sea hashable, TODOS sus elementos deben ser hashables. Al contener una lista (tipo mutable no hashable), se lanza `TypeError: unhashable type: 'list'`.",
         ["TypeError", "unhashable", "claves de diccionario"], ["análisis", "pcep-3.2", "nivel-3"],
         code_snippet="d = {(1, [2]): 'Valor'}",

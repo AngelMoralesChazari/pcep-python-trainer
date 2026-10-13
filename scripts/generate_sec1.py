@@ -132,7 +132,7 @@ def build_all_section1():
 
     exercises.append(make_ex(
         "pcep-s1-008", "Palabra reservada 'for' como variable", "Conceptos Fundamentales", "Keywords como Identificadores", "1.1", "basic_plus", "code_analysis",
-        "¿Qué ocurre al intentar ejecutar este código?\n\n```python\nfor = 10\nprint(for)\n```",
+        "¿Qué ocurre al intentar ejecutar este código?",
         "Intentar asignar valor a una palabra reservada provoca SyntaxError inmediato antes de ejecutar el programa.",
         ["SyntaxError", "keywords", "for"], ["análisis", "pcep-1.1", "nivel-2"],
         code_snippet="for = 10\nprint(for)",
@@ -222,7 +222,7 @@ def build_all_section1():
 
     exercises.append(make_ex(
         "pcep-s1-015", "Error Sintáctico vs Error Semántico en Ejecución", "Conceptos Fundamentales", "Tipos de Errores", "1.1", "intermediate", "code_analysis",
-        "Observa el siguiente código:\n\n```python\nprint('Inicio')\n10 / 0\nprint('Fin')\n```\n¿Qué tipo de error ocurre y en qué momento?",
+        "Observa el siguiente código:\n¿Qué tipo de error ocurre y en qué momento?",
         "El código es sintácticamente válido (compila a bytecode con éxito). El error ZeroDivisionError ocurre en tiempo de ejecución tras imprimir 'Inicio'.",
         ["ZeroDivisionError", "tiempo de ejecución", "error semántico"], ["análisis", "pcep-1.1", "nivel-3"],
         code_snippet="print('Inicio')\n10 / 0\nprint('Fin')",
@@ -237,7 +237,7 @@ def build_all_section1():
 
     exercises.append(make_ex(
         "pcep-s1-016", "Error Sintáctico Antes de la Ejecución", "Conceptos Fundamentales", "Fase de Parsing", "1.1", "intermediate", "code_analysis",
-        "Analiza el siguiente código:\n\n```python\nprint('Paso 1')\nprint('Paso 2'\nprint('Paso 3')\n```\n¿Qué salida se muestra en la consola?",
+        "Analiza el siguiente código:\n¿Qué salida se muestra en la consola?",
         "El error de sintaxis (paréntesis sin cerrar en línea 2) detiene el programa en la fase de análisis léxico, por lo que NO se ejecuta ninguna línea.",
         ["SyntaxError", "parsing", "fase de compilación"], ["análisis", "pcep-1.1", "nivel-3"],
         code_snippet="print('Paso 1')\nprint('Paso 2'\nprint('Paso 3')",
@@ -252,7 +252,7 @@ def build_all_section1():
 
     exercises.append(make_ex(
         "pcep-s1-017", "Asignación a Built-in print", "Conceptos Fundamentales", "Built-ins vs Keywords", "1.1", "intermediate", "code_analysis",
-        "Analiza el siguiente fragmento:\n\n```python\nprint = 100\nprint(100)\n```\n¿Qué ocurre al ejecutarlo?",
+        "Analiza el siguiente fragmento:\n¿Qué ocurre al ejecutarlo?",
         "'print' no es una keyword reservada, sino un built-in. Asignarle 100 sobrescribe el identificador con un entero. Luego al llamarlo `print(100)`, se lanza `TypeError: 'int' object is not callable`.",
         ["built-in", "TypeError", "shadowing", "print"], ["análisis", "pcep-1.1", "nivel-3"],
         code_snippet="print = 100\nprint(100)",
@@ -267,7 +267,7 @@ def build_all_section1():
 
     exercises.append(make_ex(
         "pcep-s1-018", "Identificador 'None' Reasignado", "Conceptos Fundamentales", "Inmutabilidad de None", "1.1", "intermediate", "code_analysis",
-        "¿Qué ocurre si ejecutamos la siguiente instrucción?\n\n```python\nNone = 0\n```",
+        "¿Qué ocurre si ejecutamos la siguiente instrucción?",
         "En Python 3, 'None' es una palabra reservada estricta (keyword), por lo que intentar asignarle valor provoca un SyntaxError inmediato.",
         ["None", "SyntaxError", "keyword"], ["análisis", "pcep-1.1", "nivel-3"],
         code_snippet="None = 0",
@@ -312,7 +312,7 @@ def build_all_section1():
     # 21 (L1, debugging) -> CASO EXACTO DEL USUARIO
     exercises.append(make_ex(
         "pcep-s1-021", "Nombres de variables inválidos con dígitos y espacios", "Sintaxis e Identificadores", "Reglas de Nomenclatura", "1.2", "basic", "debugging",
-        "Analiza el siguiente fragmento de código:\n\n```python\n1numero = 2\nnumero 2 = 3\n\nprint(1numero + numero 2)\n```\n¿Cuál es el resultado al intentar ejecutar este código en Python?",
+        "Analiza el siguiente fragmento de código:\n¿Cuál es el resultado al intentar ejecutar este código en Python?",
         "En Python, los nombres de variables NO pueden comenzar con un dígito numérico (1numero es inválido) ni pueden contener espacios (numero 2 es inválido). Ambos provocan un SyntaxError inmediato antes de cualquier ejecución.",
         ["SyntaxError", "identificadores inválidos", "dígito inicial", "espacios en variables"], ["depuración", "pcep-1.2", "nivel-1"],
         code_snippet="1numero = 2\nnumero 2 = 3\n\nprint(1numero + numero 2)",
@@ -378,7 +378,7 @@ def build_all_section1():
     # 26 (L1, code_analysis)
     exercises.append(make_ex(
         "pcep-s1-026", "Error de Indentación Inesperada", "Sintaxis e Identificadores", "Indentación", "1.2", "basic", "code_analysis",
-        "¿Qué error produce el siguiente código al ejecutarse?\n\n```python\na = 1\n  b = 2\nprint(a + b)\n```",
+        "¿Qué error produce el siguiente código al ejecutarse?",
         "Una indentación en el nivel superior (módulo) que no pertenece a ningún bloque de control produce `IndentationError: unexpected indent`.",
         ["IndentationError", "indentación"], ["análisis", "pcep-1.2", "nivel-1"],
         code_snippet="a = 1\n  b = 2\nprint(a + b)",
@@ -440,7 +440,7 @@ def build_all_section1():
     # 31 (L2, code_analysis)
     exercises.append(make_ex(
         "pcep-s1-031", "Identificadores con Símbolo de Dólar ($)", "Sintaxis e Identificadores", "Caracteres Inválidos: $", "1.2", "basic_plus", "code_analysis",
-        "¿Qué ocurre con el siguiente código?\n\n```python\nprecio$ = 25.50\nprint(precio$)\n```",
+        "¿Qué ocurre con el siguiente código?",
         "A diferencia de lenguajes como JavaScript o PHP, el carácter '$' no es un carácter permitido en identificadores de Python, produciendo SyntaxError.",
         ["SyntaxError", "símbolo dólar", "caracteres especiales"], ["análisis", "pcep-1.2", "nivel-2"],
         code_snippet="precio$ = 25.50\nprint(precio$)",
@@ -551,7 +551,7 @@ def build_all_section1():
     # 40 (L3, debugging)
     exercises.append(make_ex(
         "pcep-s1-040", "Separador numérico mal posicionado", "Sintaxis e Identificadores", "Errores en Literales", "1.2", "intermediate", "code_analysis",
-        "¿Qué ocurre con el siguiente código?\n\n```python\nx = _100\nprint(x)\n```",
+        "¿Qué ocurre con el siguiente código?",
         "_100 no es un literal numérico con guión bajo; es interpretado como el nombre de una variable. Al no estar definida previamente, se lanza `NameError: name '_100' is not defined`.",
         ["NameError", "identificador vs literal"], ["análisis", "pcep-1.2", "nivel-3"],
         code_snippet="x = _100\nprint(x)",
@@ -681,7 +681,7 @@ def build_all_section1():
     # 52 (L2, code_analysis)
     exercises.append(make_ex(
         "pcep-s1-052", "Comillas dentro de Comillas sin Escapar", "Literales y Tipos", "Sintaxis de Strings", "1.3", "basic_plus", "code_analysis",
-        "¿Qué ocurre con el siguiente código?\n\n```python\ns = 'It's Python'\nprint(s)\n```",
+        "¿Qué ocurre con el siguiente código?",
         "La comilla simple en 'It's cierra la cadena prematuramente, dejando la 's' suelta y provocando SyntaxError.",
         ["SyntaxError", "comillas", "escapado"], ["análisis", "pcep-1.3", "nivel-2"],
         code_snippet="s = 'It's Python'\nprint(s)",
@@ -1082,7 +1082,7 @@ def build_all_section1():
     # 89 (L2, code_analysis)
     exercises.append(make_ex(
         "pcep-s1-089", "Concatenación de input sin Convertir", "Entrada y Salida", "input() sin conversión", "1.5", "basic_plus", "code_analysis",
-        "Supón que el usuario ingresa '10' en el primer input y '20' en el segundo:\n\n```python\na = input()\nb = input()\nprint(a + b)\n```\n¿Qué se imprimirá?",
+        "Supón que el usuario ingresa '10' en el primer input y '20' en el segundo:\n¿Qué se imprimirá?",
         "Como input() devuelve cadenas, el operador `+` realiza concatenación de texto, no suma aritmética: '10' + '20' = '1020'.",
         ["input()", "concatenación", "str"], ["análisis", "pcep-1.5", "nivel-2"],
         options=[
@@ -1154,7 +1154,7 @@ def build_all_section1():
     # 95 (L3, code_analysis)
     exercises.append(make_ex(
         "pcep-s1-095", "Argumento Posicional Después de sep con Nombre", "Entrada y Salida", "Sintaxis de Argumentos en print", "1.5", "intermediate", "code_analysis",
-        "¿Qué ocurre con el siguiente código?\n\n```python\nprint('A', sep='-', 'B')\n```",
+        "¿Qué ocurre con el siguiente código?",
         "En la sintaxis de llamadas de funciones en Python, los argumentos posicionales NO pueden ir después de argumentos con nombre (keyword arguments). Lanza `SyntaxError: positional argument follows keyword argument`.",
         ["SyntaxError", "keyword argument", "posicional"], ["análisis", "pcep-1.5", "nivel-3"],
         code_snippet="print('A', sep='-', 'B')",

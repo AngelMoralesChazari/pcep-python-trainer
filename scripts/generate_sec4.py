@@ -393,7 +393,7 @@ def build_all_section4():
     # 32 (L2, code_analysis)
     exercises.append(make_ex(
         "pcep-s4-032", "Modificar Variable Global sin Declararla global (UnboundLocalError)", "Parámetros y Scope", "UnboundLocalError", "4.2", "basic_plus", "code_analysis",
-        "¿Qué error produce el siguiente código?\n\n```python\nx = 10\ndef sumar():\n    x += 1\n\nsumar()\n```",
+        "¿Qué error produce el siguiente código?",
         "Python detecta la asignación `x = ...` y clasifica a `x` como variable local. Al intentar leerla para sumarle 1 antes de haberla asignado localmente, lanza `UnboundLocalError: cannot access local variable 'x' where it is not associated with a value`.",
         ["UnboundLocalError", "asignación local sin global"], ["análisis", "pcep-4.2", "nivel-2"],
         code_snippet="x = 10\ndef sumar():\n    x += 1\n\nsumar()",
@@ -1113,7 +1113,7 @@ def build_all_section4():
     # 98 (L3, output_prediction)
     exercises.append(make_ex(
         "pcep-s4-098", "Error en Línea Previa de try Impide Asignación", "try-except-else-finally", "Variable No Definida tras Error", "4.4", "intermediate", "code_analysis",
-        "¿Qué ocurre si una variable se asigna después de la línea que produce la excepción en try, y se intenta leer en finally?\n\n```python\ntry:\n    1 / 0\n    x = 10\nfinally:\n    print(x)\n```",
+        "¿Qué ocurre si una variable se asigna después de la línea que produce la excepción en try, y se intenta leer en finally?",
         "Como la excepción ocurre en `1 / 0`, la línea `x = 10` nunca llega a ejecutarse. Al intentar imprimir `x` en finally, se lanza `NameError: name 'x' is not defined`.",
         ["NameError en finally", "flujo interrumpido"], ["análisis", "pcep-4.4", "nivel-3"],
         code_snippet="try:\n    1 / 0\n    x = 10\nfinally:\n    print(x)",

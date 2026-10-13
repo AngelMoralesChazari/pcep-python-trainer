@@ -330,7 +330,7 @@ export const SECTION_1_EXERCISES: Exercise[] = [
     "pcepObjective": "1.1",
     "difficulty": "basic_plus",
     "type": "code_analysis",
-    "statement": "¿Qué ocurre al intentar ejecutar este código?\n\n```python\nfor = 10\nprint(for)\n```",
+    "statement": "¿Qué ocurre al intentar ejecutar este código?",
     "explanation": "Intentar asignar valor a una palabra reservada provoca SyntaxError inmediato antes de ejecutar el programa.",
     "concepts": [
       "SyntaxError",
@@ -636,7 +636,7 @@ export const SECTION_1_EXERCISES: Exercise[] = [
     "pcepObjective": "1.1",
     "difficulty": "intermediate",
     "type": "code_analysis",
-    "statement": "Observa el siguiente código:\n\n```python\nprint('Inicio')\n10 / 0\nprint('Fin')\n```\n¿Qué tipo de error ocurre y en qué momento?",
+    "statement": "Observa el siguiente código:\n\n¿Qué tipo de error ocurre y en qué momento?",
     "explanation": "El código es sintácticamente válido (compila a bytecode con éxito). El error ZeroDivisionError ocurre en tiempo de ejecución tras imprimir 'Inicio'.",
     "concepts": [
       "ZeroDivisionError",
@@ -688,7 +688,7 @@ export const SECTION_1_EXERCISES: Exercise[] = [
     "pcepObjective": "1.1",
     "difficulty": "intermediate",
     "type": "code_analysis",
-    "statement": "Analiza el siguiente código:\n\n```python\nprint('Paso 1')\nprint('Paso 2'\nprint('Paso 3')\n```\n¿Qué salida se muestra en la consola?",
+    "statement": "Analiza el siguiente código:\n\n¿Qué salida se muestra en la consola?",
     "explanation": "El error de sintaxis (paréntesis sin cerrar en línea 2) detiene el programa en la fase de análisis léxico, por lo que NO se ejecuta ninguna línea.",
     "concepts": [
       "SyntaxError",
@@ -740,7 +740,7 @@ export const SECTION_1_EXERCISES: Exercise[] = [
     "pcepObjective": "1.1",
     "difficulty": "intermediate",
     "type": "code_analysis",
-    "statement": "Analiza el siguiente fragmento:\n\n```python\nprint = 100\nprint(100)\n```\n¿Qué ocurre al ejecutarlo?",
+    "statement": "Analiza el siguiente fragmento:\n\n¿Qué ocurre al ejecutarlo?",
     "explanation": "'print' no es una keyword reservada, sino un built-in. Asignarle 100 sobrescribe el identificador con un entero. Luego al llamarlo `print(100)`, se lanza `TypeError: 'int' object is not callable`.",
     "concepts": [
       "built-in",
@@ -793,7 +793,7 @@ export const SECTION_1_EXERCISES: Exercise[] = [
     "pcepObjective": "1.1",
     "difficulty": "intermediate",
     "type": "code_analysis",
-    "statement": "¿Qué ocurre si ejecutamos la siguiente instrucción?\n\n```python\nNone = 0\n```",
+    "statement": "¿Qué ocurre si ejecutamos la siguiente instrucción?",
     "explanation": "En Python 3, 'None' es una palabra reservada estricta (keyword), por lo que intentar asignarle valor provoca un SyntaxError inmediato.",
     "concepts": [
       "None",
@@ -924,7 +924,7 @@ export const SECTION_1_EXERCISES: Exercise[] = [
     "pcepObjective": "1.2",
     "difficulty": "basic",
     "type": "debugging",
-    "statement": "Analiza el siguiente fragmento de código:\n\n```python\n1numero = 2\nnumero 2 = 3\n\nprint(1numero + numero 2)\n```\n¿Cuál es el resultado al intentar ejecutar este código en Python?",
+    "statement": "Analiza el siguiente fragmento de código:\n\n¿Cuál es el resultado al intentar ejecutar este código en Python?",
     "explanation": "En Python, los nombres de variables NO pueden comenzar con un dígito numérico (1numero es inválido) ni pueden contener espacios (numero 2 es inválido). Ambos provocan un SyntaxError inmediato antes de cualquier ejecución.",
     "concepts": [
       "SyntaxError",
@@ -1125,7 +1125,7 @@ export const SECTION_1_EXERCISES: Exercise[] = [
     "pcepObjective": "1.2",
     "difficulty": "basic",
     "type": "code_analysis",
-    "statement": "¿Qué error produce el siguiente código al ejecutarse?\n\n```python\na = 1\n  b = 2\nprint(a + b)\n```",
+    "statement": "¿Qué error produce el siguiente código al ejecutarse?",
     "explanation": "Una indentación en el nivel superior (módulo) que no pertenece a ningún bloque de control produce `IndentationError: unexpected indent`.",
     "concepts": [
       "IndentationError",
@@ -1300,7 +1300,7 @@ export const SECTION_1_EXERCISES: Exercise[] = [
     "pcepObjective": "1.2",
     "difficulty": "basic_plus",
     "type": "code_analysis",
-    "statement": "¿Qué ocurre con el siguiente código?\n\n```python\nprecio$ = 25.50\nprint(precio$)\n```",
+    "statement": "¿Qué ocurre con el siguiente código?",
     "explanation": "A diferencia de lenguajes como JavaScript o PHP, el carácter '$' no es un carácter permitido en identificadores de Python, produciendo SyntaxError.",
     "concepts": [
       "SyntaxError",
@@ -1626,7 +1626,7 @@ export const SECTION_1_EXERCISES: Exercise[] = [
     "pcepObjective": "1.2",
     "difficulty": "intermediate",
     "type": "code_analysis",
-    "statement": "¿Qué ocurre con el siguiente código?\n\n```python\nx = _100\nprint(x)\n```",
+    "statement": "¿Qué ocurre con el siguiente código?",
     "explanation": "_100 no es un literal numérico con guión bajo; es interpretado como el nombre de una variable. Al no estar definida previamente, se lanza `NameError: name '_100' is not defined`.",
     "concepts": [
       "NameError",
@@ -1951,7 +1951,7 @@ export const SECTION_1_EXERCISES: Exercise[] = [
     "pcepObjective": "1.3",
     "difficulty": "basic_plus",
     "type": "code_analysis",
-    "statement": "¿Qué ocurre con el siguiente código?\n\n```python\ns = 'It's Python'\nprint(s)\n```",
+    "statement": "¿Qué ocurre con el siguiente código?",
     "explanation": "La comilla simple en 'It's cierra la cadena prematuramente, dejando la 's' suelta y provocando SyntaxError.",
     "concepts": [
       "SyntaxError",
@@ -2965,7 +2965,7 @@ export const SECTION_1_EXERCISES: Exercise[] = [
     "pcepObjective": "1.5",
     "difficulty": "basic_plus",
     "type": "code_analysis",
-    "statement": "Supón que el usuario ingresa '10' en el primer input y '20' en el segundo:\n\n```python\na = input()\nb = input()\nprint(a + b)\n```\n¿Qué se imprimirá?",
+    "statement": "Supón que el usuario ingresa '10' en el primer input y '20' en el segundo:\n\n¿Qué se imprimirá?",
     "explanation": "Como input() devuelve cadenas, el operador `+` realiza concatenación de texto, no suma aritmética: '10' + '20' = '1020'.",
     "concepts": [
       "input()",
@@ -3004,7 +3004,8 @@ export const SECTION_1_EXERCISES: Exercise[] = [
         "text": "Ninguna de las anteriores",
         "isCorrect": false
       }
-    ]
+    ],
+    "codeSnippet": "a = input()\nb = input()\nprint(a + b)"
   },
   {
     "id": "pcep-s1-090",
@@ -3170,7 +3171,7 @@ export const SECTION_1_EXERCISES: Exercise[] = [
     "pcepObjective": "1.5",
     "difficulty": "intermediate",
     "type": "code_analysis",
-    "statement": "¿Qué ocurre con el siguiente código?\n\n```python\nprint('A', sep='-', 'B')\n```",
+    "statement": "¿Qué ocurre con el siguiente código?",
     "explanation": "En la sintaxis de llamadas de funciones en Python, los argumentos posicionales NO pueden ir después de argumentos con nombre (keyword arguments). Lanza `SyntaxError: positional argument follows keyword argument`.",
     "concepts": [
       "SyntaxError",

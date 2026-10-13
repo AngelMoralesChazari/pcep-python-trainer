@@ -330,7 +330,7 @@ def build_all_section2():
     # 29 (L2, code_analysis)
     exercises.append(make_ex(
         "pcep-s2-029", "Olvido de Dos Puntos (:) en if", "Condiciones y Operadores", "SyntaxError en if", "2.1", "basic_plus", "code_analysis",
-        "¿Qué error produce el siguiente código?\n\n```python\nx = 10\nif x > 5\n    print('Mayor')\n```",
+        "¿Qué error produce el siguiente código?",
         "Olvidar los dos puntos `:` al final del encabezado de una sentencia if es un error sintáctico: `SyntaxError: expected ':'`.",
         ["SyntaxError", "dos puntos :", "if"], ["análisis", "pcep-2.1", "nivel-2"],
         code_snippet="x = 10\nif x > 5\n    print('Mayor')",
@@ -843,7 +843,7 @@ def build_all_section2():
     # 78 (L2, output_prediction)
     exercises.append(make_ex(
         "pcep-s2-078", "while con continue y Olvido de Incremento", "Bucles y range", "Trampa de Bucle Infinito", "2.2", "basic_plus", "code_analysis",
-        "¿Qué ocurre con el siguiente código?\n\n```python\ni = 0\nwhile i < 3:\n    if i == 1:\n        continue\n    print(i)\n    i += 1\n```",
+        "¿Qué ocurre con el siguiente código?",
         "Cuando i llega a 1, entra al `if` y ejecuta `continue` antes de alcanzar `i += 1`. Como `i` nunca se incrementa, se queda en 1 para siempre, creando un bucle infinito.",
         ["bucle infinito", "continue en while", "olvido de incremento"], ["análisis", "pcep-2.2", "nivel-2"],
         code_snippet="i = 0\nwhile i < 3:\n    if i == 1:\n        continue\n    print(i)\n    i += 1",

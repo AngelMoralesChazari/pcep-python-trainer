@@ -153,7 +153,7 @@ def generate_section1():
     exercises.append(make_exercise(
         "pcep-s1-008", "Uso de Palabras Reservadas como Variables", 1, SEC1_TITLE,
         "Conceptos Fundamentales", "Keywords como Identificadores", "1.1", "basic_plus", "code_analysis",
-        "¿Qué ocurre al ejecutar el siguiente fragmento de código?\n\n```python\nfor = 10\nprint(for)\n```",
+        "¿Qué ocurre al ejecutar el siguiente fragmento de código?",
         "Intentar asignar un valor a una palabra reservada como 'for' provoca un SyntaxError inmediato antes de ejecutar el print.",
         ["SyntaxError", "keywords", "for"], ["análisis", "pcep-1.1", "nivel-2"],
         code_snippet="for = 10\nprint(for)",
@@ -257,7 +257,7 @@ def generate_section1():
     exercises.append(make_exercise(
         "pcep-s1-015", "Diferencia de Error: Sintáctico vs Semántico", 1, SEC1_TITLE,
         "Conceptos Fundamentales", "Tipos de Errores", "1.1", "intermediate", "code_analysis",
-        "Observa el siguiente código:\n\n```python\nprint('Inicio')\n10 / 0\nprint('Fin')\n```\n¿Qué tipo de error ocurre y en qué momento?",
+        "Observa el siguiente código:\n¿Qué tipo de error ocurre y en qué momento?",
         "El código es sintácticamente válido (compila a bytecode con éxito). El error ZeroDivisionError ocurre en tiempo de ejecución tras imprimir 'Inicio'.",
         ["ZeroDivisionError", "tiempo de ejecución", "error semántico"], ["análisis", "pcep-1.1", "nivel-3"],
         code_snippet="print('Inicio')\n10 / 0\nprint('Fin')",
@@ -274,7 +274,7 @@ def generate_section1():
     exercises.append(make_exercise(
         "pcep-s1-016", "Error Sintáctico Antes de la Ejecución", 1, SEC1_TITLE,
         "Conceptos Fundamentales", "Fase de Parsing", "1.1", "intermediate", "code_analysis",
-        "Analiza el siguiente código:\n\n```python\nprint('Paso 1')\nprint('Paso 2'\nprint('Paso 3')\n```\n¿Qué salida se muestra en la consola?",
+        "Analiza el siguiente código:\n¿Qué salida se muestra en la consola?",
         "El error de sintaxis (falta cerrar un paréntesis en la línea 2) detiene el programa en la fase de análisis léxico/sintáctico, por lo que NO se ejecuta ninguna línea (ni siquiera 'Paso 1').",
         ["SyntaxError", "parsing", "fase de compilación"], ["análisis", "pcep-1.1", "nivel-3"],
         code_snippet="print('Paso 1')\nprint('Paso 2'\nprint('Paso 3')",
@@ -291,7 +291,7 @@ def generate_section1():
     exercises.append(make_exercise(
         "pcep-s1-017", "Asignación a Built-in vs Keyword", 1, SEC1_TITLE,
         "Conceptos Fundamentales", "Built-ins vs Keywords", "1.1", "intermediate", "code_analysis",
-        "Analiza el siguiente fragmento:\n\n```python\nprint = 100\nprint(100)\n```\n¿Qué ocurre al ejecutarlo?",
+        "Analiza el siguiente fragmento:\n¿Qué ocurre al ejecutarlo?",
         "'print' no es una palabra reservada (keyword), sino una función incorporada (built-in). Asignarle 100 sobrescribe el identificador en el espacio de nombres local/global. Luego, al intentar llamarlo con `print(100)`, se lanza `TypeError: 'int' object is not callable`.",
         ["built-in", "TypeError", "shadowing", "print"], ["análisis", "pcep-1.1", "nivel-3"],
         code_snippet="print = 100\nprint(100)",
@@ -308,7 +308,7 @@ def generate_section1():
     exercises.append(make_exercise(
         "pcep-s1-018", "Identificador 'None' Reasignado", 1, SEC1_TITLE,
         "Conceptos Fundamentales", "Inmutabilidad de None", "1.1", "intermediate", "code_analysis",
-        "¿Qué ocurre si ejecutamos la siguiente instrucción?\n\n```python\nNone = 0\n```",
+        "¿Qué ocurre si ejecutamos la siguiente instrucción?",
         "En Python 3, 'None' es una palabra reservada estricta (keyword), por lo que intentar asignarle cualquier valor provoca un SyntaxError inmediato.",
         ["None", "SyntaxError", "keyword"], ["análisis", "pcep-1.1", "nivel-3"],
         code_snippet="None = 0",
