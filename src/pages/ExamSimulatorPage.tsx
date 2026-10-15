@@ -483,8 +483,8 @@ export const ExamSimulatorPage: React.FC = () => {
 
                 return (
                   <>
-                    <div className="text-slate-900 dark:text-slate-100 text-base leading-relaxed font-normal">
-                      <TheoryMarkdownRenderer content={cleanStatement} />
+                    <div className="text-slate-900 dark:text-slate-100 text-lg sm:text-xl leading-relaxed font-normal">
+                      <TheoryMarkdownRenderer content={cleanStatement} textSize="lg" />
                     </div>
 
                     {effectiveCodeSnippet && (
