@@ -223,10 +223,12 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({ exercise, onNext
               let itemClass = "border-slate-200 dark:border-slate-800 hover:border-petrol-400 dark:hover:border-petrol-600 bg-white dark:bg-slate-900";
 
               if (hasSubmitted) {
-                if (opt.isCorrect) {
-                  itemClass = "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-900 dark:text-emerald-200";
-                } else if (isSelected && !opt.isCorrect) {
-                  itemClass = "border-rose-500 bg-rose-50 dark:bg-rose-950/30 text-rose-900 dark:text-rose-200";
+                if (isSelected && isCorrect) {
+                  itemClass = "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-900 dark:text-emerald-200 font-medium";
+                } else if (isSelected && !isCorrect) {
+                  itemClass = "border-rose-500 bg-rose-50 dark:bg-rose-950/30 text-rose-900 dark:text-rose-200 font-medium";
+                } else {
+                  itemClass = "border-slate-200 dark:border-slate-800 opacity-60 bg-white dark:bg-slate-900";
                 }
               } else if (isSelected) {
                 itemClass = "border-petrol-600 bg-petrol-50/60 dark:bg-petrol-950/40 text-petrol-900 dark:text-petrol-100";

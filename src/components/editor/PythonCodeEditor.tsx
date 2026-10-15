@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { Play, RotateCcw, Copy, Check, Terminal, Clock, AlertCircle } from 'lucide-react';
 import { pythonExecutor } from '../../services/pythonExecutor';
 import { ExecutionResult } from '../../services/pythonExecutor';
+import { tokenizePythonCode } from '../theory/TheoryMarkdownRenderer';
 
 interface PythonCodeEditorProps {
   initialCode: string;
@@ -9,6 +10,33 @@ interface PythonCodeEditorProps {
   stdinInput?: string;
   readOnly?: boolean;
   minHeight?: string;
+}
+
+function getEditorTokenColor(type: string): string {
+  switch (type) {
+    case 'keyword':
+      return 'text-purple-400 font-bold';
+    case 'constant':
+      return 'text-amber-400 font-bold';
+    case 'builtin':
+      return 'text-teal-400 font-semibold';
+    case 'exception':
+      return 'text-rose-400 font-bold';
+    case 'comment':
+      return 'text-slate-400 italic';
+    case 'string':
+      return 'text-emerald-400 font-normal';
+    case 'method':
+      return 'text-sky-300 font-medium';
+    case 'number':
+      return 'text-sky-400 font-normal';
+    case 'operator':
+      return 'text-amber-300 font-semibold';
+    case 'identifier':
+    case 'plain':
+    default:
+      return 'text-slate-100';
+  }
 }
 
 export const PythonCodeEditor: React.FC<PythonCodeEditorProps> = ({
@@ -22,6 +50,21 @@ export const PythonCodeEditor: React.FC<PythonCodeEditorProps> = ({
   const [isRunning, setIsRunning] = useState(false);
   const [copied, setCopied] = useState(false);
   const [executionResult, setExecutionResult] = useState<ExecutionResult | null>(null);
+
+  const tokens = useMemo(() => tokenizePythonCode(code), [code]);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const preRef = useRef<HTMLPreElement>(null);
+  const lineNumbersRef = useRef<HTMLDivElement>(null);
+
+  const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
+    if (preRef.current) {
+      preRef.current.scrollTop = e.currentTarget.scrollTop;
+      preRef.current.scrollLeft = e.currentTarget.scrollLeft;
+    }
+    if (lineNumbersRef.current) {
+      lineNumbersRef.current.scrollTop = e.currentTarget.scrollTop;
+    }
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     // Manejo de indentación con TAB (4 espacios según PEP-8)
@@ -126,32 +169,64 @@ export const PythonCodeEditor: React.FC<PythonCodeEditorProps> = ({
         </div>
       </div>
 
-      {/* Área del editor con números de línea */}
-      <div className="relative flex font-mono text-sm bg-slate-900 text-slate-100" style={{ minHeight }}>
-        {/* Números de línea */}
-        <div className="select-none py-3 px-3 text-right text-slate-500 bg-slate-950/40 border-r border-slate-800">
+      {/* Área del editor con números de línea y coloreado de sintaxis */}
+      <div className="relative flex font-mono text-sm bg-slate-900 text-slate-100 overflow-hidden" style={{ minHeight }}>
+        {/* Números de línea sincronizados */}
+        <div
+          ref={lineNumbersRef}
+          className="select-none py-3 px-3 text-right text-slate-500 bg-slate-950/40 border-r border-slate-800 shrink-0 overflow-hidden"
+          style={{ maxHeight: minHeight }}
+        >
           {lines.map((_, i) => (
             <div key={i} className="leading-6 text-xs">{i + 1}</div>
           ))}
         </div>
 
-        {/* Textarea editable de código */}
-        <textarea
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          onKeyDown={handleKeyDown}
-          readOnly={readOnly}
-          spellCheck={false}
-          autoCorrect="off"
-          autoCapitalize="off"
-          autoComplete="off"
-          className="w-full h-full p-3 bg-transparent text-slate-100 font-mono text-sm leading-6 resize-none outline-none focus:ring-0 overflow-auto"
-          style={{
-            minHeight,
-            fontVariantLigatures: 'none',
-            fontFeatureSettings: '"liga" 0, "calt" 0, "dlig" 0'
-          }}
-        />
+        {/* Contenedor relativo de código con resaltado */}
+        <div className="relative flex-1 min-w-0 h-full">
+          {/* Capa inferior coloreada con sintaxis */}
+          <pre
+            ref={preRef}
+            aria-hidden="true"
+            className="absolute inset-0 p-3 m-0 font-mono text-sm leading-6 overflow-hidden pointer-events-none whitespace-pre select-none text-slate-100 border-0"
+            style={{
+              minHeight,
+              tabSize: 4,
+              fontVariantLigatures: 'none',
+              fontFeatureSettings: '"liga" 0, "calt" 0, "dlig" 0'
+            }}
+          >
+            <code>
+              {tokens.map((tok, i) => (
+                <span key={i} className={getEditorTokenColor(tok.type)}>
+                  {tok.text}
+                </span>
+              ))}
+              {code.endsWith('\n') ? ' ' : ''}
+            </code>
+          </pre>
+
+          {/* Textarea editable transparente con cursor blanco encima */}
+          <textarea
+            ref={textareaRef}
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            onScroll={handleScroll}
+            onKeyDown={handleKeyDown}
+            readOnly={readOnly}
+            spellCheck={false}
+            autoCorrect="off"
+            autoCapitalize="off"
+            autoComplete="off"
+            className="relative z-10 w-full h-full p-3 m-0 bg-transparent text-transparent caret-white font-mono text-sm leading-6 resize-none outline-none border-0 focus:ring-0 overflow-auto whitespace-pre selection:bg-petrol-500/40 selection:text-transparent"
+            style={{
+              minHeight,
+              tabSize: 4,
+              fontVariantLigatures: 'none',
+              fontFeatureSettings: '"liga" 0, "calt" 0, "dlig" 0'
+            }}
+          />
+        </div>
       </div>
 
       {/* Consola de salida de ejecución */}
