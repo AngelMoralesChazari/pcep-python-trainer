@@ -142,8 +142,15 @@ export const PythonCodeEditor: React.FC<PythonCodeEditorProps> = ({
           onKeyDown={handleKeyDown}
           readOnly={readOnly}
           spellCheck={false}
+          autoCorrect="off"
+          autoCapitalize="off"
+          autoComplete="off"
           className="w-full h-full p-3 bg-transparent text-slate-100 font-mono text-sm leading-6 resize-none outline-none focus:ring-0 overflow-auto"
-          style={{ minHeight }}
+          style={{
+            minHeight,
+            fontVariantLigatures: 'none',
+            fontFeatureSettings: '"liga" 0, "calt" 0, "dlig" 0'
+          }}
         />
       </div>
 
