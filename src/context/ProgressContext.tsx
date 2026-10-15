@@ -130,6 +130,15 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     setSubmissions(prev => [newSubmission, ...prev]);
 
+    // Calcular lista actualizada de ejercicios fallados
+    const currentFailed = new Set(progress.failedExerciseIds);
+    if (attemptData.isCorrect) {
+      currentFailed.delete(attemptData.exerciseId);
+    } else {
+      currentFailed.add(attemptData.exerciseId);
+    }
+    const updatedFailedList = Array.from(currentFailed);
+
     // Actualizar estadísticas del usuario activo si está autenticado
     if (user) {
       const prevSolved = user.stats?.totalSolved || 0;
@@ -143,6 +152,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         totalAttempts: newAttempts,
         totalSolved: newSolved,
         accuracyPercentage: newAccuracy,
+        failedExerciseIds: updatedFailedList,
         lastActiveDate: now
       });
 
@@ -153,8 +163,10 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             totalAttempts: newAttempts,
             totalSolved: newSolved,
             accuracyPercentage: newAccuracy,
+            failedExerciseIds: updatedFailedList,
             lastActiveDate: now
           },
+          failedExerciseIds: updatedFailedList,
           lastActiveDate: now
         }, { merge: true }).catch(() => {});
       }
@@ -206,9 +218,16 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
     setExamAttempts(prev => [attempt, ...prev]);
 
+    const wrongQuestionIds = Object.entries(examData.answers || {})
+      .filter(([_, ans]) => !ans.isCorrect)
+      .map(([id]) => id);
+
+    const mergedFailed = Array.from(new Set([...progress.failedExerciseIds, ...wrongQuestionIds]));
+
     if (user) {
       const now = new Date().toISOString();
       updateUserStats({
+        failedExerciseIds: mergedFailed,
         lastActiveDate: now
       });
 
@@ -216,6 +235,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setDoc(doc(db, 'users', user.uid), {
           lastSimulacroScore: examData.scorePercentage,
           weakTopics: examData.weakObjectives || [],
+          failedExerciseIds: mergedFailed,
           lastActiveDate: now
         }, { merge: true }).catch(() => {});
       }
