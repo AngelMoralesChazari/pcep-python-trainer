@@ -12,6 +12,12 @@
   .dark body {
     @apply bg-slate-950 text-slate-100 selection:bg-petrol-900 selection:text-petrol-200;
   }
+
+  /* Desactivar ligaduras en inputs y textareas para evitar sustituciones como :: -> espacio y un solo dos puntos */
+  textarea, input {
+    font-variant-ligatures: none !important;
+    font-feature-settings: "liga" 0, "calt" 0, "dlig" 0 !important;
+  }
 }
 
 /* Custom Scrollbar for code blocks and exercise panels */
