@@ -1,5 +1,7 @@
 export * from './pcep';
+export * from './cognitiveFamilies';
 import type { PCEPSectionId, PCEPObjectiveCode, ExerciseDifficulty, ExerciseType, VerdictStatus } from './pcep';
+import type { CognitiveFamilyId } from './cognitiveFamilies';
 
 export interface ExerciseOption {
   id: string;
@@ -36,6 +38,9 @@ export interface Exercise {
   concepts: string[];          // Conceptos evaluados
   tags: string[];
   source?: string;
+  sourceUrl?: string;
+  license?: string;
+  cognitiveFamily?: CognitiveFamilyId | string;
   isGenerated?: boolean;
   isActive: boolean;
 }
