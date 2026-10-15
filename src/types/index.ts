@@ -54,6 +54,7 @@ export interface UserStats {
   streakAwardedDate?: string;
   todayConnectedSeconds?: number;
   isTodayStreakConfirmed?: boolean;
+  failedExerciseIds?: string[];
 }
 
 export interface UserProfile {
@@ -66,6 +67,7 @@ export interface UserProfile {
   lastLoginAt?: string;
   lastSimulacroScore?: number | null;
   weakTopics?: string[];
+  failedExerciseIds?: string[];
   progressPercentage?: number;
 }
 
