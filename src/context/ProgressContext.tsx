@@ -57,7 +57,7 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const { user, updateUserStats } = useAuth();
 
   const [exercises, setExercises] = useState<Exercise[]>(() => {
-    const BANK_VERSION = 'v2_400_seed';
+    const BANK_VERSION = 'v3_4geeks_diversity';
     const currentVersion = localStorage.getItem('pcep_bank_version');
     const saved = localStorage.getItem('pcep_exercises_bank');
 
@@ -70,10 +70,18 @@ export const ProgressProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       } catch {}
     }
 
-    // Inicializamos o actualizamos con los 400 ejercicios base + variantes
+    // Inicializamos o actualizamos con los 421 ejercicios base (incluyendo 4Geeks) + variantes
     localStorage.setItem('pcep_bank_version', BANK_VERSION);
     const initialVariants = ExerciseGenerator.generateBatch(5);
-    const initialBank = [...SEED_EXERCISES, ...initialVariants];
+    let customUserExercises: Exercise[] = [];
+    if (saved) {
+      try {
+        const oldParsed: Exercise[] = JSON.parse(saved);
+        const seedIdSet = new Set(SEED_EXERCISES.map(e => e.id));
+        customUserExercises = oldParsed.filter(e => !seedIdSet.has(e.id) && !e.id.startsWith('gen-'));
+      } catch {}
+    }
+    const initialBank = [...SEED_EXERCISES, ...customUserExercises, ...initialVariants];
     localStorage.setItem('pcep_exercises_bank', JSON.stringify(initialBank));
     return initialBank;
   });

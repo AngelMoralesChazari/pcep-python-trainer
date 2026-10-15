@@ -159,19 +159,25 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({ exercise, onNext
 
       {/* Enunciado con resaltado para código en línea (limpiando bloques de código duplicados si existen) */}
       {(() => {
-        const hasFencedCode = /```(?:python)?\s*[\s\S]*?```/i.test(exercise.statement);
+        const hasFencedCode = /```(?:python|py|text)?\s*[\s\S]*?```/i.test(exercise.statement);
         let cleanStatement = exercise.statement;
         let effectiveCodeSnippet = exercise.codeSnippet;
 
         if (hasFencedCode) {
-          if (!effectiveCodeSnippet) {
-            const m = exercise.statement.match(/```(?:python)?\s*([\s\S]*?)```/i);
-            if (m) effectiveCodeSnippet = m[1].trim();
+          if (!effectiveCodeSnippet && exercise.type !== 'programming') {
+            const m = exercise.statement.match(/```(?:python|py|text)?\s*([\s\S]*?)```/i);
+            if (m) {
+              effectiveCodeSnippet = m[1].replace(/^(?:python|py|text)\s*\n/i, '').trim();
+            }
           }
           cleanStatement = exercise.statement
-            .replace(/```(?:python)?\s*[\s\S]*?```/gi, '')
+            .replace(/```(?:python|py|text)?\s*[\s\S]*?```/gi, '')
             .replace(/\n\s*\n\s*\n/g, '\n\n')
             .trim();
+        }
+
+        if (effectiveCodeSnippet) {
+          effectiveCodeSnippet = effectiveCodeSnippet.replace(/^(?:python|py|text)\s*\n/i, '').trim();
         }
 
         return (

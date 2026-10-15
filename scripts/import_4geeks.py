@@ -304,22 +304,53 @@ MANUAL_TEST_CASES = {
 }
 
 
-def clean_markdown_statement(md_text: str) -> str:
-    """Limpia metadatos frontmatter, títulos numéricos redundantes y extrae el cuerpo limpio."""
+CONCISE_STATEMENTS = {
+    "01-Console": "Usa la función `print()` para escribir exactamente el texto `Hello World!` en la consola.",
+    "02-Declare-Variables": "Declara una variable llamada `color` asignándole el valor `'Yellow'`, y luego imprímela en la consola usando `print(color)`.",
+    "03-Print-Variables-In-The-Console": "Imprime dos variables en una sola llamada a `print()`, separándolas con coma: `print(color, item)` para que la salida muestre `red marker`.",
+    "04-Multiply-Two-Values": "Calcula la multiplicación de `2345` por `7323` usando el operador aritmético `*`. Almacena el resultado en la variable `variables_are_cool` e imprímelo en la consola.",
+    "05-User-Inputed-Values": "Solicita la edad del usuario mediante `input()`, conviértela a entero con `int()`, súmale `10` años e imprime en consola el mensaje en formato: `Your age is: X`.",
+    "06-String-Concatenation": "Declara las variables `my_var1 = 'Hello'` y `my_var2 = 'World'`. Concaténalas con un espacio en medio utilizando el operador `+` para imprimir `Hello World`.",
+    "07-Create-a-Basic-HTML": "Usa las variables de etiquetas proporcionadas y concatenación de cadenas (`+`) para generar la estructura HTML básica: `<html><head><title></title></head><body></body></html>` y almacénala en `html_document`.",
+    "08.1-Your-First-If": "Pregunta al usuario cuánto dinero tiene en el bolsillo con `input()`. Si la cantidad es mayor a `100`, imprime `Give me some money!`. De lo contrario, imprime `You are a poor guy, go away!`.",
+    "08.2-How-Much-The-Wedding-Costs": "Determina el costo de una boda según la cantidad de invitados ingresada por el usuario:\n\n* Hasta 50 invitados: `$4,000`\n* De 51 a 100 invitados: `$10,000`\n* De 101 a 200 invitados: `$15,000`\n* Más de 200 invitados: `$20,000`\n\nAsigna el valor correspondiente a `price` e imprime: `Your wedding will cost X dollars`.",
+    "09-Random-Numbers": "Usa el módulo `random` para generar y retornar un número entero aleatorio comprendido entre 1 y 10 (inclusive) mediante `random.randint(1, 10)`.",
+    "10-Calling-Your-First-Function": "Utiliza la función predefinida `is_odd(my_number)` para comprobar si el número `45345` es impar e imprime el resultado booleano (`True`) en la consola.",
+    "10.1-Creating-Your-First-Function": "Define una función llamada `add_numbers(a, b)` que reciba dos parámetros y retorne su suma usando la sentencia `return`.",
+    "11-Create-A-New-Function": "Crea una función llamada `generate_random()` que genere y retorne un número entero aleatorio entre 0 y 9 utilizando `random.randint(0, 9)`.",
+    "12-Rand-From-One-to-Twelve": "Crea una función llamada `get_randomInt()` que genere y retorne un entero aleatorio comprendido entre 1 y 12.",
+    "13-Your-First-Loop": "Usa un bucle `for` junto con la función `range(12)` para imprimir en consola los números del `0` al `11`, cada uno en una línea independiente.",
+    "14-Create-A-For-Loop": "Crea una función llamada `standards_maker()` que use un bucle `for` para imprimir exactamente 10 veces la frase `'I will ask questions if I am stuck'`.",
+    "15-Looping-With-FizzBuzz": "Implementa el algoritmo clásico FizzBuzz para los números del 1 al 100:\n\n* Si el número es múltiplo de 3 y de 5, imprime `FizzBuzz`.\n* Si solo es múltiplo de 3, imprime `Fizz`.\n* Si solo es múltiplo de 5, imprime `Buzz`.\n* En cualquier otro caso, imprime el número.",
+    "16-Random-Colors-Loop": "Crea una función llamada `get_color(color_number)` que itere sobre una lista y retorne una colección de colores seleccionados aleatoriamente.",
+    "17-Russian-Roulette": "Completa la función `fire_gun()`: si la posición de la bala coincide con la recámara actual, retorna `You are dead!`; en cualquier otro caso, retorna `Keep playing!`.",
+    "18-The-Beatles": "Crea una función llamada `sing()` que utilice un bucle `for` para construir y retornar la letra del coro de la canción 'Let It Be' (11 versos).",
+    "19-Bottles-Of-Milk": "Usa un bucle `for` con paso negativo `range(99, 2, -1)` para imprimir los versos decrecientes de la canción '99 bottles of milk on the wall'."
+}
+
+
+def clean_markdown_statement(folder: str, md_text: str) -> str:
+    """Limpia metadatos frontmatter, imágenes rotas externas, enlaces y extrae el cuerpo conciso."""
+    if folder in CONCISE_STATEMENTS:
+        return CONCISE_STATEMENTS[folder]
+
     # Quitar frontmatter --- ... ---
     cleaned = re.sub(r'^---[\s\S]*?---\s*', '', md_text)
+    # Quitar imágenes markdown ![...](...)
+    cleaned = re.sub(r'!\[.*?\]\(.*?\)', '', cleaned)
+    # Quitar enlaces externos que no sean necesarios
+    cleaned = re.sub(r'\[(.*?)\]\(https?://[^\)]+\)', r'\1', cleaned)
     # Quitar badge de video o tutorial inicial
     cleaned = re.sub(r'#\s*`[0-9.]+`\s*', '# ', cleaned)
-    # Quitar enlaces externos que no sean necesarios
-    cleaned = cleaned.strip()
-    return cleaned
+    # Normalizar bloques de código ```py a ```python
+    cleaned = re.sub(r'```py\b', '```python', cleaned)
+    return cleaned.strip()
 
 
 def extract_title_from_md(md_text: str, default: str) -> str:
     m = re.search(r'#\s*(?:`[0-9.]+`\s*)?([^\n]+)', md_text)
     if m:
         t = m.group(1).strip()
-        # Traducir o limpiar títulos en inglés si quedan
         t = t.replace('How Much The Wedding Costs (if...else)', 'Cálculo de Costo de Bodas por Tramos')
         t = t.replace('Declare Variables', 'Declaración y Asignación de Variables')
         t = t.replace('Print Variables In The Console', 'Impresión de Variables en Consola')
@@ -375,7 +406,7 @@ def run_importer(repo_dir: str, output_ts_path: str) -> Dict[str, Any]:
         with open(os.path.join(folder_path, readme_file), 'r', encoding='utf-8') as rf:
             raw_statement = rf.read()
 
-        clean_stmt = clean_markdown_statement(raw_statement)
+        clean_stmt = clean_markdown_statement(folder, raw_statement)
         title = extract_title_from_md(raw_statement, folder)
 
         # Leer app.py (starter code)

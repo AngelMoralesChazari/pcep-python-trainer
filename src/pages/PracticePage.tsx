@@ -128,7 +128,11 @@ export const PracticePage: React.FC<PracticePageProps> = ({
         const matchTopic = ex.topic.toLowerCase().includes(query);
         const matchObjective = ex.pcepObjective.toLowerCase().includes(query);
         const matchStatement = ex.statement.toLowerCase().includes(query);
-        if (!matchTitle && !matchTopic && !matchObjective && !matchStatement) return false;
+        const matchSource = ex.source?.toLowerCase().includes(query);
+        const matchFamily = ex.cognitiveFamily?.toLowerCase().includes(query);
+        const matchTags = ex.tags?.some(t => t.toLowerCase().includes(query));
+        const matchId = ex.id.toLowerCase().includes(query);
+        if (!matchTitle && !matchTopic && !matchObjective && !matchStatement && !matchSource && !matchFamily && !matchTags && !matchId) return false;
       }
 
       return true;
@@ -418,6 +422,7 @@ export const PracticePage: React.FC<PracticePageProps> = ({
               className="text-xs py-2 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 outline-none"
             >
               <option value="all">Todos los Tipos</option>
+              <option value="programming">Programación (Juez Online)</option>
               <option value="theory">Teoría</option>
               <option value="code_analysis">Análisis de Código</option>
               <option value="output_prediction">Predicción de Salida</option>
@@ -534,6 +539,13 @@ export const PracticePage: React.FC<PracticePageProps> = ({
                       <div className="flex items-center gap-1 text-[11px] text-amber-600 dark:text-amber-400 font-medium">
                         <Sparkles className="w-3 h-3" />
                         <span>Variante Paramétrica</span>
+                      </div>
+                    )}
+
+                    {exercise.source === '4geeks_academy' && (
+                      <div className="flex items-center gap-1.5 text-[11px] text-teal-600 dark:text-teal-400 font-medium">
+                        <span className="w-2 h-2 rounded-full bg-teal-500 inline-block shadow-xs"></span>
+                        <span>4Geeks Academy</span>
                       </div>
                     )}
 
