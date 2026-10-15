@@ -61,8 +61,8 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({ exercise, onNext
   // Manejo de respuesta para PREDICCIÓN DE SALIDA
   const handleSubmitOutputPrediction = () => {
     if (!exercise.expectedOutput) return;
-    const cleanUser = outputPredictionInput.trim();
-    const cleanExpected = exercise.expectedOutput.trim();
+    const cleanUser = outputPredictionInput.replace(/\r\n/g, '\n').trim();
+    const cleanExpected = exercise.expectedOutput.replace(/\r\n/g, '\n').trim();
     const correct = cleanUser === cleanExpected;
 
     setIsCorrect(correct);
@@ -130,8 +130,8 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({ exercise, onNext
               </span>
             )}
           </div>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">{exercise.title}</h2>
-          <p className="text-xs text-slate-500">{exercise.sectionTitle} &bull; {exercise.topic}</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-50">{exercise.title}</h2>
+          <p className="text-xs sm:text-sm text-slate-500">{exercise.sectionTitle} &bull; {exercise.topic}</p>
         </div>
 
         <button
@@ -166,8 +166,8 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({ exercise, onNext
 
         return (
           <>
-            <div className="text-slate-900 dark:text-slate-100 text-base sm:text-lg leading-relaxed font-medium">
-              <TheoryMarkdownRenderer content={cleanStatement} />
+            <div className="text-slate-900 dark:text-slate-100 text-lg sm:text-xl lg:text-2xl leading-relaxed font-normal">
+              <TheoryMarkdownRenderer content={cleanStatement} textSize="lg" />
             </div>
 
             {/* Fragmento de código relevante (para predicción o análisis) grande y centrado */}
@@ -262,6 +262,14 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({ exercise, onNext
             disabled={hasSubmitted}
             placeholder="Ejemplo: 25\n1"
             rows={3}
+            spellCheck={false}
+            autoCorrect="off"
+            autoCapitalize="off"
+            autoComplete="off"
+            style={{
+              fontVariantLigatures: 'none',
+              fontFeatureSettings: '"liga" 0, "calt" 0, "dlig" 0'
+            }}
             className="w-full font-mono text-base sm:text-lg p-4 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 outline-none focus:border-petrol-500 focus:ring-2 focus:ring-petrol-500/30 transition shadow-inner"
           />
 
@@ -312,6 +320,14 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({ exercise, onNext
             onChange={(e) => setCompletionInput(e.target.value)}
             disabled={hasSubmitted}
             placeholder="Código o instrucción exacta"
+            spellCheck={false}
+            autoCorrect="off"
+            autoCapitalize="off"
+            autoComplete="off"
+            style={{
+              fontVariantLigatures: 'none',
+              fontFeatureSettings: '"liga" 0, "calt" 0, "dlig" 0'
+            }}
             className="w-full font-mono text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 outline-none focus:border-petrol-500 focus:ring-1 focus:ring-petrol-500"
           />
 
