@@ -1,15 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   AlertTriangle, FileJson, Users, RefreshCw, CheckCircle2,
   Clock, Award, Shield, Search, Filter, BookOpen, AlertCircle,
-  Sparkles, ExternalLink, ChevronLeft, ChevronRight
+  Sparkles, ExternalLink, ChevronLeft, ChevronRight, Eye, X,
+  Bug, HelpCircle, Code2, XCircle
 } from 'lucide-react';
 import { collection, onSnapshot, getDocs } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from '../lib/firebase';
 import { useProgress } from '../context/ProgressContext';
+import { useAuth, ADMIN_EMAIL } from '../context/AuthContext';
 import { ProgressBar } from '../components/common/ProgressBar';
+import { PythonCodeBlock, TheoryMarkdownRenderer } from '../components/theory/TheoryMarkdownRenderer';
+import { DifficultyBadge, ExerciseTypeBadge } from '../components/common/Badge';
 import { Exercise, PCEPObjectiveCode, PCEPSectionId, UserProfile } from '../types';
-import { ADMIN_EMAIL } from '../context/AuthContext';
 
 export interface StudentRecord {
   id: string;
@@ -25,10 +28,13 @@ export interface StudentRecord {
   lastActiveDate: string;
   createdAt: string;
   totalAttempts: number;
+  failedExerciseIds: string[];
 }
 
 export const TeacherDashboardPage: React.FC = () => {
-  const { exercises, addNewExercise, importExercisesJson } = useProgress();
+  const { user } = useAuth();
+  const { exercises, submissions, examAttempts, progress, addNewExercise, importExercisesJson } = useProgress();
+  const [inspectingExercise, setInspectingExercise] = useState<Exercise | null>(null);
 
   const [activeTab, setActiveTab] = useState<'students' | 'exercises' | 'analytics' | 'import'>('students');
   const [students, setStudents] = useState<StudentRecord[]>([]);
@@ -63,6 +69,12 @@ export const TeacherDashboardPage: React.FC = () => {
     const role: 'student' | 'teacher' = data.role === 'teacher' || data.email?.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase() ? 'teacher' : 'student';
     const progressScore = data.progressPercentage ?? (solved > 0 ? Math.min(100, Math.round((solved / 30) * 100)) : 0);
 
+    const failedIds: string[] = Array.isArray(data.failedExerciseIds)
+      ? data.failedExerciseIds
+      : Array.isArray(data.stats?.failedExerciseIds)
+        ? data.stats.failedExerciseIds
+        : [];
+
     return {
       id,
       name: data.displayName || data.email?.split('@')[0] || 'Usuario PCEP',
@@ -76,7 +88,8 @@ export const TeacherDashboardPage: React.FC = () => {
       weakTopics: Array.isArray(data.weakTopics) ? data.weakTopics : (data.stats?.weakTopics || []),
       lastActiveDate: data.lastLoginAt || data.stats?.lastActiveDate || data.createdAt || new Date().toISOString(),
       createdAt: data.createdAt || new Date().toISOString(),
-      totalAttempts: attempts
+      totalAttempts: attempts,
+      failedExerciseIds: failedIds
     };
   };
 
@@ -202,6 +215,119 @@ export const TeacherDashboardPage: React.FC = () => {
   const passRate = testedStudents.length > 0
     ? Math.round((passedStudents.length / testedStudents.length) * 100)
     : 0;
+
+  // Obtener los ejercicios fallados del estudiante seleccionado (individual)
+  const studentFailedExercises = useMemo(() => {
+    if (!selectedStudent) return [];
+
+    const failedSet = new Set<string>(selectedStudent.failedExerciseIds || []);
+
+    // 1. Si el estudiante seleccionado es el usuario autenticado actual, incluir fallos locales
+    if (user && (user.uid === selectedStudent.id || user.email?.toLowerCase() === selectedStudent.email?.toLowerCase())) {
+      (progress.failedExerciseIds || []).forEach(id => failedSet.add(id));
+    }
+
+    // 2. Historial de entregas individuales
+    submissions.forEach(sub => {
+      const matchUser = sub.userId === selectedStudent.id ||
+        (selectedStudent.email && sub.userId?.toLowerCase() === selectedStudent.email.toLowerCase());
+      if (matchUser && !sub.isCorrect && sub.exerciseId) {
+        failedSet.add(sub.exerciseId);
+      }
+    });
+
+    // 3. Fallos registrados en simulacros
+    examAttempts.forEach(exam => {
+      const matchUser = exam.userId === selectedStudent.id ||
+        (selectedStudent.email && exam.userId?.toLowerCase() === selectedStudent.email.toLowerCase());
+      if (exam.answers) {
+        Object.entries(exam.answers).forEach(([qId, ans]) => {
+          if (!ans.isCorrect) {
+            failedSet.add(qId);
+          }
+        });
+      }
+    });
+
+    // Mapear a ejercicios reales del banco
+    const matchedExercises = exercises.filter(ex => failedSet.has(ex.id));
+
+    // Si aún no hay IDs específicos registrados (ej. perfiles previos sin tracking de fallos),
+    // pero el alumno tiene weakTopics, mostramos ejercicios vinculados a sus temas débiles para que el profesor pueda auditarlos
+    if (matchedExercises.length === 0 && selectedStudent.weakTopics && selectedStudent.weakTopics.length > 0) {
+      const weakLower = selectedStudent.weakTopics.map(w => w.toLowerCase());
+      return exercises.filter(ex => {
+        return weakLower.some(w =>
+          ex.topic.toLowerCase().includes(w) ||
+          ex.pcepObjective.toLowerCase().includes(w) ||
+          ex.statement.toLowerCase().includes(w)
+        );
+      }).slice(0, 4);
+    }
+
+    return matchedExercises;
+  }, [selectedStudent, exercises, submissions, examAttempts, progress.failedExerciseIds, user]);
+
+  // Auditoría grupal: calcular problemas con mayor tasa de error en todo el grupo
+  const groupFailedExercises = useMemo(() => {
+    const failureCountMap: Record<string, number> = {};
+
+    // 1. Sumar fallos de todos los estudiantes
+    students.forEach(st => {
+      if (Array.isArray(st.failedExerciseIds)) {
+        st.failedExerciseIds.forEach(id => {
+          failureCountMap[id] = (failureCountMap[id] || 0) + 1;
+        });
+      }
+    });
+
+    // 2. Sumar entregas incorrectas registradas
+    submissions.forEach(sub => {
+      if (!sub.isCorrect && sub.exerciseId) {
+        failureCountMap[sub.exerciseId] = (failureCountMap[sub.exerciseId] || 0) + 1;
+      }
+    });
+
+    // 3. Sumar fallos de simulacros
+    examAttempts.forEach(exam => {
+      if (exam.answers) {
+        Object.entries(exam.answers).forEach(([qId, ans]) => {
+          if (!ans.isCorrect) {
+            failureCountMap[qId] = (failureCountMap[qId] || 0) + 1;
+          }
+        });
+      }
+    });
+
+    // 4. Incluir progreso local si no está contado
+    (progress.failedExerciseIds || []).forEach(id => {
+      failureCountMap[id] = (failureCountMap[id] || 0) + 1;
+    });
+
+    // Ordenar de mayor a menor frecuencia de fallos
+    const sorted = Object.entries(failureCountMap)
+      .filter(([id]) => exercises.some(e => e.id === id))
+      .sort((a, b) => b[1] - a[1]);
+
+    const results = sorted.map(([id, count]) => {
+      const ex = exercises.find(e => e.id === id)!;
+      return { exercise: ex, failureCount: count };
+    });
+
+    // Si aún hay pocos fallos registrados por ser aula nueva, agregar ejercicios desafiantes como referencia docente
+    if (results.length < 5) {
+      const existingIds = new Set(results.map(r => r.exercise.id));
+      const challenging = exercises
+        .filter(e => !existingIds.has(e.id) && (e.difficulty === 'pcep_challenge' || e.difficulty === 'intermediate' || e.difficulty === 'basic_plus'))
+        .slice(0, 6 - results.length);
+
+      challenging.forEach(ex => {
+        results.push({ exercise: ex, failureCount: 1 });
+      });
+    }
+
+    return results;
+  }, [students, submissions, examAttempts, progress.failedExerciseIds, exercises]);
 
   // Manejo de creación manual de ejercicios
   const handleCreateExercise = (e: React.FormEvent) => {
@@ -601,6 +727,64 @@ export const TeacherDashboardPage: React.FC = () => {
                     )}
                   </div>
 
+                  {/* Problemas Respondidos Incorrectamente (Auditoría de Errores) */}
+                  <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                        <Bug className="w-3.5 h-3.5" />
+                        <span>Problemas con Respuestas Incorrectas ({studentFailedExercises.length}):</span>
+                      </h4>
+                      {studentFailedExercises.length > 0 && (
+                        <span className="text-[10px] bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full font-medium">
+                          Auditar
+                        </span>
+                      )}
+                    </div>
+
+                    {studentFailedExercises.length > 0 ? (
+                      <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                        {studentFailedExercises.map((ex) => (
+                          <div
+                            key={ex.id}
+                            className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-600 transition group"
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="space-y-1 flex-1 min-w-0">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-petrol-100 dark:bg-petrol-950 text-petrol-700 dark:text-petrol-300 font-semibold">
+                                    Sec {ex.section} &bull; Obj {ex.pcepObjective}
+                                  </span>
+                                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 font-semibold flex items-center gap-1">
+                                    <XCircle className="w-3 h-3" /> Error
+                                  </span>
+                                </div>
+                                <h5 className="text-xs font-semibold text-slate-900 dark:text-slate-100 line-clamp-1">
+                                  {ex.title}
+                                </h5>
+                                <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2">
+                                  {ex.statement}
+                                </p>
+                              </div>
+                              <button
+                                onClick={() => setInspectingExercise(ex)}
+                                className="px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-medium flex items-center gap-1 shadow-sm shrink-0 transition"
+                                title="Auditar problema y ver respuesta correcta / explicación"
+                              >
+                                <Eye className="w-3.5 h-3.5" />
+                                <span>Auditar</span>
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-3 rounded-xl border border-dashed border-slate-200 dark:border-slate-800 text-xs text-slate-500 text-center">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-500 mx-auto mb-1" />
+                        No tiene problemas con fallos registrados en su historial.
+                      </div>
+                    )}
+                  </div>
+
                   {/* Fechas de Actividad */}
                   <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 text-[11px] text-slate-400 flex justify-between items-center">
                     <span>
@@ -725,6 +909,75 @@ export const TeacherDashboardPage: React.FC = () => {
                   <span className="font-mono text-petrol-600 font-bold">Bajo</span>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* TABLA DE AUDITORÍA GRUPAL DE REACTIVOS CON FALLOS */}
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                  <Bug className="w-4 h-4 text-amber-500" />
+                  <span>Auditoría Docente: Reactivos con Fallos en el Alumnado</span>
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Revisa enunciados, lógica del código y claves de respuesta de los problemas donde los alumnos tropiezan con mayor frecuencia.
+                </p>
+              </div>
+              <span className="text-xs font-mono text-slate-400">
+                {groupFailedExercises.length} problemas en radar
+              </span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500 font-semibold">
+                    <th className="pb-3 pl-2">Ejercicio / Título</th>
+                    <th className="pb-3 px-3">Sección / Obj</th>
+                    <th className="pb-3 px-3">Dificultad</th>
+                    <th className="pb-3 px-3 text-center">Frecuencia</th>
+                    <th className="pb-3 pr-2 text-right">Acción</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+                  {groupFailedExercises.map(({ exercise, failureCount }) => (
+                    <tr key={exercise.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition">
+                      <td className="py-3 pl-2">
+                        <div className="font-semibold text-slate-900 dark:text-slate-100">
+                          {exercise.title}
+                        </div>
+                        <div className="text-[11px] text-slate-500 line-clamp-1 max-w-md">
+                          {exercise.statement}
+                        </div>
+                      </td>
+                      <td className="py-3 px-3 whitespace-nowrap">
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-petrol-100 dark:bg-petrol-950 text-petrol-700 dark:text-petrol-300 font-medium">
+                          Sec {exercise.section} &bull; Obj {exercise.pcepObjective}
+                        </span>
+                      </td>
+                      <td className="py-3 px-3 whitespace-nowrap">
+                        <DifficultyBadge difficulty={exercise.difficulty} />
+                      </td>
+                      <td className="py-3 px-3 text-center whitespace-nowrap">
+                        <span className="inline-flex items-center gap-1 font-mono font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 px-2 py-0.5 rounded-full text-[11px]">
+                          <XCircle className="w-3 h-3" />
+                          {failureCount} {failureCount === 1 ? 'fallo' : 'fallos'}
+                        </span>
+                      </td>
+                      <td className="py-3 pr-2 text-right whitespace-nowrap">
+                        <button
+                          onClick={() => setInspectingExercise(exercise)}
+                          className="px-2.5 py-1.5 rounded-lg bg-petrol-600 hover:bg-petrol-700 text-white font-medium text-[11px] inline-flex items-center gap-1 shadow-sm transition"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>Auditar</span>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -868,6 +1121,201 @@ export const TeacherDashboardPage: React.FC = () => {
           >
             Importar al Banco Activo
           </button>
+        </div>
+      )}
+
+      {/* MODAL DE AUDITORÍA DE PROBLEMA / EJERCICIO */}
+      {inspectingExercise && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-scaleIn">
+            {/* Header del Modal */}
+            <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex items-start justify-between gap-4 bg-slate-50/50 dark:bg-slate-950/40">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 flex items-center gap-1">
+                    <Bug className="w-3 h-3" /> Modo Auditoría Docente
+                  </span>
+                  <span className="text-[10px] font-mono text-slate-400">
+                    ID: {inspectingExercise.id}
+                  </span>
+                  <DifficultyBadge difficulty={inspectingExercise.difficulty} />
+                  <ExerciseTypeBadge type={inspectingExercise.type} />
+                </div>
+                <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
+                  {inspectingExercise.title}
+                </h3>
+                <div className="text-xs text-slate-500">
+                  {inspectingExercise.sectionTitle} &bull; Objetivo PCEP {inspectingExercise.pcepObjective} &bull; {inspectingExercise.topic}
+                </div>
+              </div>
+              <button
+                onClick={() => setInspectingExercise(null)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                title="Cerrar auditoría"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Contenido scrolleable */}
+            <div className="p-6 overflow-y-auto space-y-5 text-xs">
+              {/* Alerta de verificación */}
+              <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 text-amber-900 dark:text-amber-200 flex items-start gap-3">
+                <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold">Control de Calidad del Problema</p>
+                  <p className="text-[11px] text-amber-800/90 dark:text-amber-300/80 mt-0.5">
+                    Inspecciona la formulación de la pregunta, la sintaxis del fragmento de Python y verifica si la respuesta configurada como correcta es la adecuada.
+                  </p>
+                </div>
+              </div>
+
+              {/* Enunciado */}
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  Enunciado del Problema:
+                </label>
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 text-sm leading-relaxed whitespace-pre-wrap">
+                  {inspectingExercise.statement}
+                </div>
+              </div>
+
+              {/* Código de Ejemplo / Snippet */}
+              {(inspectingExercise.codeSnippet || inspectingExercise.starterCode) && (
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                    <Code2 className="w-3.5 h-3.5 text-petrol-500" />
+                    <span>Fragmento de Código Evaluado:</span>
+                  </label>
+                  <PythonCodeBlock
+                    code={inspectingExercise.codeSnippet || inspectingExercise.starterCode || ''}
+                  />
+                </div>
+              )}
+
+              {/* Opciones de Respuesta (si aplica) */}
+              {inspectingExercise.options && inspectingExercise.options.length > 0 && (
+                <div className="space-y-2">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    Opciones de Respuesta y Clave Configurada:
+                  </label>
+                  <div className="grid grid-cols-1 gap-2">
+                    {inspectingExercise.options.map((opt, idx) => (
+                      <div
+                        key={opt.id || idx}
+                        className={`p-3 rounded-xl border flex items-start gap-3 transition ${
+                          opt.isCorrect
+                            ? 'bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 font-medium'
+                            : 'bg-white dark:bg-slate-950/40 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
+                        }`}
+                      >
+                        <div className="mt-0.5">
+                          {opt.isCorrect ? (
+                            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                          ) : (
+                            <div className="w-4 h-4 rounded-full border border-slate-300 dark:border-slate-600 flex items-center justify-center text-[10px] text-slate-400 font-mono">
+                              {String.fromCharCode(65 + idx)}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-mono text-xs">{opt.text}</div>
+                          {opt.isCorrect && (
+                            <span className="inline-block mt-1 text-[10px] font-bold uppercase text-emerald-600 dark:text-emerald-400">
+                              ✓ Marcada como Respuesta Correcta
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Salida esperada (si aplica) */}
+              {inspectingExercise.expectedOutput && (
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    Salida Esperada en Consola (stdout):
+                  </label>
+                  <pre className="p-3 rounded-xl bg-slate-900 text-emerald-400 font-mono text-xs overflow-x-auto border border-slate-800">
+                    {inspectingExercise.expectedOutput}
+                  </pre>
+                </div>
+              )}
+
+              {/* Soluciones Aceptables (si aplica) */}
+              {inspectingExercise.acceptableSolutions && inspectingExercise.acceptableSolutions.length > 0 && (
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    Variantes de Solución Aceptadas:
+                  </label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {inspectingExercise.acceptableSolutions.map((sol, i) => (
+                      <span key={i} className="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 font-mono text-xs text-petrol-600 dark:text-petrol-400 border border-slate-200 dark:border-slate-700">
+                        {sol}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Casos de Prueba (si aplica) */}
+              {inspectingExercise.testCases && inspectingExercise.testCases.length > 0 && (
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    Casos de Prueba (Test Cases):
+                  </label>
+                  <div className="space-y-1.5">
+                    {inspectingExercise.testCases.map((tc, idx) => (
+                      <div key={idx} className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 font-mono text-[11px]">
+                        <div><strong className="text-slate-400">Input:</strong> {tc.input || '(vacío)'}</div>
+                        <div><strong className="text-emerald-500">Expected:</strong> {tc.expectedOutput}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Explicación Pedagógica */}
+              {inspectingExercise.explanation && (
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                    <BookOpen className="w-3.5 h-3.5 text-petrol-500" />
+                    <span>Explicación que se le Muestra al Alumno:</span>
+                  </label>
+                  <div className="p-4 rounded-xl bg-petrol-50/40 dark:bg-petrol-950/20 border border-petrol-100 dark:border-petrol-900/40 text-slate-700 dark:text-slate-300 leading-relaxed text-xs">
+                    {inspectingExercise.explanation}
+                  </div>
+                </div>
+              )}
+
+              {/* Conceptos Evaluados y Tags */}
+              <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between flex-wrap gap-2 text-[11px] text-slate-400">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="font-semibold text-slate-500">Conceptos:</span>
+                  {inspectingExercise.concepts?.map((c, i) => (
+                    <span key={i} className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                      {c}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer del Modal */}
+            <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 flex items-center justify-between">
+              <span className="text-[11px] text-slate-400 font-mono">
+                PCEP Question ID: {inspectingExercise.id}
+              </span>
+              <button
+                onClick={() => setInspectingExercise(null)}
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-medium text-xs transition"
+              >
+                Cerrar Auditoría
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
