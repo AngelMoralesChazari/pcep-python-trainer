@@ -268,19 +268,48 @@ function renderInline(text: string, keyPrefix = 'inline'): React.ReactNode[] {
 
 interface TheoryMarkdownRendererProps {
   content: string;
+  className?: string;
+  textSize?: 'sm' | 'base' | 'lg';
 }
 
 /**
- * Renderizador de Markdown estructurado para la sección de Teoría.
+ * Renderizador de Markdown estructurado para la sección de Teoría y Enunciados.
  * Convierte encabezados ###, listas numeradas 1., listas con viñetas *,
  * negritas **, cursivas * y código `...` en elementos HTML estilizados,
  * con resaltado de sintaxis para palabras reservadas y built-ins de Python.
  */
-export const TheoryMarkdownRenderer: React.FC<TheoryMarkdownRendererProps> = ({ content }) => {
+export const TheoryMarkdownRenderer: React.FC<TheoryMarkdownRendererProps> = ({
+  content,
+  className = '',
+  textSize = 'sm'
+}) => {
   const lines = content.trim().split('\n');
 
+  const isLg = textSize === 'lg';
+  const isBase = textSize === 'base';
+
+  const containerTextClass = isLg
+    ? 'text-base sm:text-lg lg:text-xl text-slate-800 dark:text-slate-100 font-medium'
+    : isBase
+      ? 'text-sm sm:text-base text-slate-800 dark:text-slate-200'
+      : 'text-sm text-slate-700 dark:text-slate-300';
+
+  const paragraphTextClass = isLg
+    ? 'text-base sm:text-lg lg:text-xl text-slate-800 dark:text-slate-100 leading-relaxed my-2.5 font-medium'
+    : isBase
+      ? 'text-sm sm:text-base text-slate-800 dark:text-slate-200 leading-relaxed my-2'
+      : 'text-sm text-slate-700 dark:text-slate-300 leading-relaxed my-2';
+
+  const headerTextClass = isLg
+    ? 'text-lg sm:text-xl lg:text-2xl font-bold text-slate-900 dark:text-slate-50'
+    : 'text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100';
+
+  const listTextClass = isLg
+    ? 'text-base sm:text-lg text-slate-800 dark:text-slate-200 leading-relaxed'
+    : 'text-sm text-slate-700 dark:text-slate-300 leading-relaxed';
+
   return (
-    <div className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed space-y-2 select-text">
+    <div className={`${containerTextClass} leading-relaxed space-y-2 select-text ${className}`}>
       {lines.map((line, idx) => {
         const trimmed = line.trim();
 
@@ -294,7 +323,7 @@ export const TheoryMarkdownRenderer: React.FC<TheoryMarkdownRendererProps> = ({ 
           const headerText = trimmed.replace(/^###\s*/, '');
           return (
             <div key={idx} className="pt-3 pb-1 first:pt-0">
-              <h4 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <h4 className={`${headerTextClass} flex items-center gap-2`}>
                 <span className="w-1.5 h-4 rounded-full bg-petrol-500 dark:bg-petrol-400 flex-shrink-0" />
                 <span>{renderInline(headerText, `h-${idx}`)}</span>
               </h4>
@@ -307,7 +336,7 @@ export const TheoryMarkdownRenderer: React.FC<TheoryMarkdownRendererProps> = ({ 
         if (olMatch) {
           const [, num, itemText] = olMatch;
           return (
-            <div key={idx} className="flex items-start gap-3 my-2 text-sm leading-relaxed">
+            <div key={idx} className={`flex items-start gap-3 my-2 ${listTextClass}`}>
               <span className="flex-shrink-0 flex items-center justify-center w-5 h-5 rounded-full bg-petrol-100 dark:bg-petrol-900/60 text-petrol-800 dark:text-petrol-300 font-mono text-xs font-bold mt-0.5 shadow-xs border border-petrol-200/60 dark:border-petrol-800/60">
                 {num}
               </span>
@@ -341,7 +370,7 @@ export const TheoryMarkdownRenderer: React.FC<TheoryMarkdownRendererProps> = ({ 
           return (
             <div
               key={idx}
-              className={`flex items-start gap-2.5 my-1.5 text-sm leading-relaxed ${indentClass}`}
+              className={`flex items-start gap-2.5 my-1.5 ${listTextClass} ${indentClass}`}
             >
               <span className={`${bulletClass} mt-2 flex-shrink-0`} />
               <div className="flex-1 text-slate-700 dark:text-slate-300">
@@ -353,7 +382,7 @@ export const TheoryMarkdownRenderer: React.FC<TheoryMarkdownRendererProps> = ({ 
 
         // Párrafo de texto estándar
         return (
-          <p key={idx} className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed my-2">
+          <p key={idx} className={paragraphTextClass}>
             {renderInline(line, `p-${idx}`)}
           </p>
         );
