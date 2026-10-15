@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   CheckCircle2, XCircle, Bookmark, BookmarkCheck,
-  Sparkles, RefreshCw, ChevronRight, ChevronDown, ChevronUp, Eye, EyeOff
+  Sparkles, RefreshCw, ChevronRight, ChevronDown, ChevronUp, Eye, EyeOff, RotateCcw
 } from 'lucide-react';
 import { Exercise } from '../../types';
 import { DifficultyBadge, ExerciseTypeBadge } from '../common/Badge';
@@ -41,6 +41,16 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({ exercise, onNext
     setIsCorrect(false);
     setJudgeResult(null);
   }, [exercise.id]);
+
+  // Permitir al usuario reintentar el ejercicio sin recargar la página
+  const handleRetry = () => {
+    setHasSubmitted(false);
+    setIsCorrect(false);
+    setShowSolution(false);
+    setShowDetails(false);
+    setJudgeResult(null);
+    setSelectedOptionId(null);
+  };
 
   // Manejo de respuesta para TEORÍA y ANÁLISIS DE CÓDIGO (con opciones)
   const handleSubmitOption = () => {
@@ -238,7 +248,7 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({ exercise, onNext
             })}
           </div>
 
-          {!hasSubmitted && (
+          {!hasSubmitted ? (
             <button
               onClick={handleSubmitOption}
               disabled={!selectedOptionId}
@@ -246,7 +256,15 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({ exercise, onNext
             >
               Comprobar Respuesta
             </button>
-          )}
+          ) : !isCorrect ? (
+            <button
+              onClick={handleRetry}
+              className="mt-2 w-full sm:w-auto px-6 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-medium text-sm transition inline-flex items-center justify-center gap-2 shadow-sm"
+            >
+              <RotateCcw className="w-4 h-4" />
+              <span>Reintentar este ejercicio</span>
+            </button>
+          ) : null}
         </div>
       )}
 
@@ -273,7 +291,7 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({ exercise, onNext
             className="w-full font-mono text-base sm:text-lg p-4 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 outline-none focus:border-petrol-500 focus:ring-2 focus:ring-petrol-500/30 transition shadow-inner"
           />
 
-          {!hasSubmitted && (
+          {!hasSubmitted ? (
             <button
               onClick={handleSubmitOutputPrediction}
               disabled={!outputPredictionInput.trim()}
@@ -281,7 +299,15 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({ exercise, onNext
             >
               Verificar Salida
             </button>
-          )}
+          ) : !isCorrect ? (
+            <button
+              onClick={handleRetry}
+              className="px-6 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-medium text-sm transition inline-flex items-center gap-2 shadow-sm"
+            >
+              <RotateCcw className="w-4 h-4" />
+              <span>Reintentar este ejercicio</span>
+            </button>
+          ) : null}
         </div>
       )}
 
@@ -331,7 +357,7 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({ exercise, onNext
             className="w-full font-mono text-base p-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 outline-none focus:border-petrol-500 focus:ring-1 focus:ring-petrol-500"
           />
 
-          {!hasSubmitted && (
+          {!hasSubmitted ? (
             <button
               onClick={handleSubmitCompletion}
               disabled={!completionInput.trim()}
@@ -339,7 +365,15 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({ exercise, onNext
             >
               Validar Solución
             </button>
-          )}
+          ) : !isCorrect ? (
+            <button
+              onClick={handleRetry}
+              className="px-6 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-medium text-sm transition inline-flex items-center gap-2 shadow-sm"
+            >
+              <RotateCcw className="w-4 h-4" />
+              <span>Reintentar este ejercicio</span>
+            </button>
+          ) : null}
         </div>
       )}
 
@@ -414,7 +448,21 @@ export const ExerciseRunner: React.FC<ExerciseRunnerProps> = ({ exercise, onNext
             </div>
 
             {/* Acciones compactas a la orilla */}
-            <div className="flex items-center gap-2 sm:gap-2.5 ml-auto">
+            <div className="flex items-center gap-2 sm:gap-2.5 ml-auto flex-wrap">
+              <button
+                type="button"
+                onClick={handleRetry}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition shadow-xs ${
+                  !isCorrect
+                    ? 'bg-rose-600 hover:bg-rose-700 text-white'
+                    : 'border border-slate-300 dark:border-slate-700/80 bg-white/90 dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`}
+                title="Volver a intentar este problema sin recargar la página"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>{!isCorrect ? 'Reintentar Problema' : 'Repetir'}</span>
+              </button>
+
               <button
                 type="button"
                 onClick={() => {
